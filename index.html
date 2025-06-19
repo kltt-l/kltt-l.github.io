@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,20 +23,22 @@
             min-height: 100vh;
         }
         
-        /* 左侧边栏样式 - 简洁分界线 */
+        /* 左侧边栏样式 */
         .sidebar {
             width: 220px;
             padding: 30px 20px;
             border-right: 1px solid #e1e4e8;
-            position: relative;
             background-color: #fff;
             z-index: 10;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
         }
         
         .sidebar-content {
             display: flex;
             flex-direction: column;
-            height: 100%;
         }
         
         .sidebar h2 {
@@ -66,7 +68,8 @@
             border-radius: 6px;
         }
         
-        .sidebar a:hover, .sidebar a.active {
+        .sidebar a:hover, 
+        .sidebar a.active {
             background-color: #f7fafc;
             color: #3182ce;
             font-weight: 500;
@@ -79,13 +82,36 @@
             background-color: #f9fafb;
         }
         
-        /* 头部区域 */
+        /* 页面内容区域通用样式 */
+        .page-section {
+            margin-bottom: 60px;
+            padding: 30px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            display: none;
+        }
+        
+        .page-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 首页区域 */
+        #home {
+            display: block; /* 默认显示首页 */
+        }
+        
         .header {
             display: flex;
             align-items: center;
-            margin-bottom: 40px;
-            padding-bottom: 30px;
-            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 30px;
         }
         
         .avatar {
@@ -98,10 +124,6 @@
             margin-right: 25px;
         }
         
-        .intro {
-            flex: 1;
-        }
-        
         .intro h1 {
             font-size: 2.2rem;
             margin-bottom: 10px;
@@ -111,25 +133,52 @@
         .intro p {
             font-size: 1.1rem;
             color: #4a5568;
-            max-width: 600px;
+            max-width: 800px;
+        }
+        
+        /* 关于我区域 */
+        .about-content {
+            display: flex;
+            gap: 40px;
+        }
+        
+        .about-text {
+            flex: 1;
+        }
+        
+        .skills {
+            flex: 1;
+        }
+        
+        .skill-category {
+            margin-bottom: 25px;
+        }
+        
+        .skill-category h3 {
+            font-size: 1.3rem;
+            color: #3182ce;
+            margin-bottom: 15px;
+        }
+        
+        .skill-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .skill-item {
+            background: #edf2f7;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.95rem;
         }
         
         /* 项目区域 */
-        .projects-section {
-            margin-top: 30px;
-        }
-        
-        .projects-section h2 {
-            font-size: 1.8rem;
-            margin-bottom: 25px;
-            color: #2d3748;
-            font-weight: 600;
-        }
-        
         .projects-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 25px;
+            margin-top: 20px;
         }
         
         .project-card {
@@ -175,7 +224,213 @@
             background-color: #2b6cb0;
         }
         
+        /* 博客区域 */
+        .blog-posts {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 25px;
+        }
+        
+        .post-card {
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            transition: transform 0.3s ease;
+        }
+        
+        .post-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .post-image {
+            height: 180px;
+            background-color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #718096;
+        }
+        
+        .post-content {
+            padding: 20px;
+        }
+        
+        .post-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #718096;
+            margin-bottom: 10px;
+        }
+        
+        .post-content h3 {
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+        
+        .post-excerpt {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+        
+        .read-more {
+            color: #3182ce;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .read-more::after {
+            content: '→';
+            margin-left: 5px;
+            transition: transform 0.2s;
+        }
+        
+        .read-more:hover::after {
+            transform: translateX(3px);
+        }
+        
+        /* 联系区域 */
+        .contact-container {
+            display: flex;
+            gap: 40px;
+            margin-top: 20px;
+        }
+        
+        .contact-info {
+            flex: 1;
+        }
+        
+        .contact-info h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+        
+        .contact-details {
+            margin-bottom: 25px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            background: #edf2f7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: #3182ce;
+        }
+        
+        .contact-text {
+            flex: 1;
+        }
+        
+        .contact-text h4 {
+            font-size: 1rem;
+            margin-bottom: 3px;
+            color: #4a5568;
+        }
+        
+        .contact-text p {
+            color: #718096;
+            font-size: 0.95rem;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: #edf2f7;
+            border-radius: 50%;
+            color: #3182ce;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        
+        .social-link:hover {
+            background: #e2e8f0;
+        }
+        
+        .contact-form {
+            flex: 1;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        
+        .form-control:focus {
+            border-color: #3182ce;
+            outline: none;
+        }
+        
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .submit-btn {
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+        
+        .submit-btn:hover {
+            background-color: #2b6cb0;
+        }
+        
         /* 响应式调整 */
+        @media (max-width: 992px) {
+            .about-content,
+            .contact-container {
+                flex-direction: column;
+                gap: 30px;
+            }
+        }
+        
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
@@ -183,6 +438,8 @@
             
             .sidebar {
                 width: 100%;
+                height: auto;
+                position: relative;
                 border-right: none;
                 border-bottom: 1px solid #e1e4e8;
             }
@@ -196,12 +453,16 @@
                 margin-right: 0;
                 margin-bottom: 20px;
             }
+            
+            .blog-posts {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- 左侧边栏 - 简洁分界线 -->
+        <!-- 左侧边栏 -->
         <div class="sidebar">
             <div class="sidebar-content">
                 <h2>导航菜单</h2>
@@ -217,18 +478,110 @@
         
         <!-- 主体内容 -->
         <div class="main-content">
-            <!-- 头部区域 -->
-            <div class="header">
-                <img src="images/tri-shooter.png" alt="个人头像" class="avatar">
-                <div class="intro">
-                    <h1>李睿钦 | 高级前端工程师</h1>
-                    <p>拥有5年前端开发经验，专注于构建高性能、用户友好的Web应用。熟练掌握React、Vue等现代前端框架，对用户体验设计和性能优化有深入理解。热爱开源社区，持续学习新技术并分享知识。</p>
+            <!-- 首页区域 -->
+            <section id="home" class="page-section active">
+                <div class="header">
+                    <img src="images/tri-shooter.png" alt="个人头像" class="avatar">
+                    <div class="intro">
+                        <h1>李睿钦 | 高级前端工程师</h1>
+                        <p>拥有5年前端开发经验，专注于构建高性能、用户友好的Web应用。熟练掌握React、Vue等现代前端框架，对用户体验设计和性能优化有深入理解。热爱开源社区，持续学习新技术并分享知识。</p>
+                        <p style="margin-top: 15px;">欢迎访问我的个人主页，在这里您可以了解我的专业背景、查看我的项目作品、阅读技术博客，或者直接与我取得联系。</p>
+                    </div>
                 </div>
-            </div>
+                
+                <div class="about-summary" style="margin-top: 40px;">
+                    <h2 style="font-size: 1.8rem; margin-bottom: 20px; color: #2d3748;">专业能力概述</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                        <div style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                            <h3 style="color: #3182ce; margin-bottom: 15px;">前端技术</h3>
+                            <p>精通HTML5/CSS3/JavaScript(ES6+)，熟练使用React、Vue等主流框架，掌握TypeScript、Webpack等工具链</p>
+                        </div>
+                        <div style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                            <h3 style="color: #3182ce; margin-bottom: 15px;">UI/UX设计</h3>
+                            <p>具备良好的设计审美，熟练使用Figma、Sketch等设计工具，能够独立完成产品原型设计和界面实现</p>
+                        </div>
+                        <div style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                            <h3 style="color: #3182ce; margin-bottom: 15px;">性能优化</h3>
+                            <p>擅长Web性能分析与优化，包括加载性能、渲染性能优化，有大型项目性能调优经验</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 关于我区域 -->
+            <section id="about" class="page-section">
+                <h2 style="font-size: 1.8rem; margin-bottom: 25px; color: #2d3748;">关于我</h2>
+                
+                <div class="about-content">
+                    <div class="about-text">
+                        <p style="margin-bottom: 20px;">我是一名专注于前端开发的技术专家，拥有计算机科学学士学位。从大学时期开始接触Web开发，至今已有5年专业开发经验。</p>
+                        
+                        <p style="margin-bottom: 20px;">在职业生涯中，我曾在两家科技公司担任前端开发工程师，参与过多个大型项目的架构设计和开发工作。我特别注重代码质量和用户体验，坚持编写可维护、高性能的前端代码。</p>
+                        
+                        <h3 style="font-size: 1.3rem; margin: 25px 0 15px; color: #3182ce;">工作经历</h3>
+                        <div style="margin-bottom: 20px; padding-left: 20px; border-left: 3px solid #e2e8f0;">
+                            <h4 style="font-size: 1.1rem; margin-bottom: 5px;">高级前端工程师 | ABC科技有限公司 (2020-至今)</h4>
+                            <p style="color: #718096; margin-bottom: 10px;">负责公司核心产品的前端架构设计和开发，优化前端性能，指导初级开发人员</p>
+                            
+                            <h4 style="font-size: 1.1rem; margin-bottom: 5px; margin-top: 15px;">前端开发工程师 | XYZ互联网公司 (2018-2020)</h4>
+                            <p style="color: #718096;">参与电商平台的前端开发，实现响应式设计和用户交互优化</p>
+                        </div>
+                        
+                        <h3 style="font-size: 1.3rem; margin: 25px 0 15px; color: #3182ce;">教育背景</h3>
+                        <div style="padding-left: 20px; border-left: 3px solid #e2e8f0;">
+                            <h4 style="font-size: 1.1rem; margin-bottom: 5px;">计算机科学与技术学士 | 北京大学 (2014-2018)</h4>
+                            <p style="color: #718096;">主修课程：数据结构、算法分析、计算机网络、Web开发技术</p>
+                        </div>
+                    </div>
+                    
+                    <div class="skills">
+                        <h3 style="font-size: 1.3rem; margin-bottom: 25px; color: #3182ce;">专业技能</h3>
+                        
+                        <div class="skill-category">
+                            <h3>前端技术</h3>
+                            <div class="skill-list">
+                                <span class="skill-item">HTML5/CSS3</span>
+                                <span class="skill-item">JavaScript (ES6+)</span>
+                                <span class="skill-item">TypeScript</span>
+                                <span class="skill-item">React.js</span>
+                                <span class="skill-item">Vue.js</span>
+                                <span class="skill-item">Redux</span>
+                                <span class="skill-item">Webpack</span>
+                                <span class="skill-item">SASS/LESS</span>
+                            </div>
+                        </div>
+                        
+                        <div class="skill-category">
+                            <h3>开发工具</h3>
+                            <div class="skill-list">
+                                <span class="skill-item">Git</span>
+                                <span class="skill-item">VS Code</span>
+                                <span class="skill-item">WebStorm</span>
+                                <span class="skill-item">Chrome DevTools</span>
+                                <span class="skill-item">Jest</span>
+                                <span class="skill-item">Cypress</span>
+                            </div>
+                        </div>
+                        
+                        <div class="skill-category">
+                            <h3>其他技能</h3>
+                            <div class="skill-list">
+                                <span class="skill-item">响应式设计</span>
+                                <span class="skill-item">性能优化</span>
+                                <span class="skill-item">UI/UX设计</span>
+                                <span class="skill-item">Node.js基础</span>
+                                <span class="skill-item">GraphQL</span>
+                                <span class="skill-item">RESTful API</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
             
             <!-- 项目区域 -->
-            <div class="projects-section">
-                <h2>精选项目</h2>
+            <section id="projects" class="page-section">
+                <h2 style="font-size: 1.8rem; margin-bottom: 25px; color: #2d3748;">我的项目</h2>
+                
                 <div class="projects-grid">
                     <div class="project-card">
                         <h3>企业级数据可视化平台</h3>
@@ -266,8 +619,186 @@
                         <a href="#" class="project-link">查看项目</a>
                     </div>
                 </div>
-            </div>
+            </section>
+            
+            <!-- 博客区域 -->
+            <section id="blog" class="page-section">
+                <h2 style="font-size: 1.8rem; margin-bottom: 25px; color: #2d3748;">技术博客</h2>
+                
+                <div class="blog-posts">
+                    <div class="post-card">
+                        <div class="post-image">封面图片</div>
+                        <div class="post-content">
+                            <div class="post-meta">
+                                <span>2023-10-15</span>
+                                <span>前端开发</span>
+                            </div>
+                            <h3>深入理解React Hooks原理与最佳实践</h3>
+                            <p class="post-excerpt">本文详细解析React Hooks的内部实现机制，分享实际项目中的最佳实践和常见陷阱...</p>
+                            <a href="#" class="read-more">阅读全文</a>
+                        </div>
+                    </div>
+                    
+                    <div class="post-card">
+                        <div class="post-image">封面图片</div>
+                        <div class="post-content">
+                            <div class="post-meta">
+                                <span>2023-09-22</span>
+                                <span>性能优化</span>
+                            </div>
+                            <h3>前端性能优化实战：从加载到渲染的全链路优化</h3>
+                            <p class="post-excerpt">分享大型电商平台的前端性能优化经验，涵盖资源加载、代码分割、渲染优化等关键技术...</p>
+                            <a href="#" class="read-more">阅读全文</a>
+                        </div>
+                    </div>
+                    
+                    <div class="post-card">
+                        <div class="post-image">封面图片</div>
+                        <div class="post-content">
+                            <div class="post-meta">
+                                <span>2023-08-05</span>
+                                <span>TypeScript</span>
+                            </div>
+                            <h3>TypeScript高级类型技巧与应用场景</h3>
+                            <p class="post-excerpt">探索TypeScript的高级类型系统，包括条件类型、映射类型、模板字面量类型等实用技巧...</p>
+                            <a href="#" class="read-more">阅读全文</a>
+                        </div>
+                    </div>
+                    
+                    <div class="post-card">
+                        <div class="post-image">封面图片</div>
+                        <div class="post-content">
+                            <div class="post-meta">
+                                <span>2023-07-18</span>
+                                <span>Web安全</span>
+                            </div>
+                            <h3>现代Web应用安全防护指南</h3>
+                            <p class="post-excerpt">全面解析常见Web安全威胁(XSS、CSRF等)及防护策略，分享安全编码实践和工具使用...</p>
+                            <a href="#" class="read-more">阅读全文</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 联系区域 -->
+            <section id="contact" class="page-section">
+                <h2 style="font-size: 1.8rem; margin-bottom: 25px; color: #2d3748;">联系方式</h2>
+                
+                <div class="contact-container">
+                    <div class="contact-info">
+                        <h3>联系信息</h3>
+                        
+                        <div class="contact-details">
+                            <div class="contact-item">
+                                <div class="contact-icon">📧</div>
+                                <div class="contact-text">
+                                    <h4>电子邮箱</h4>
+                                    <p>contact@example.com</p>
+                                </div>
+                            </div>
+                            
+                            <div class="contact-item">
+                                <div class="contact-icon">📱</div>
+                                <div class="contact-text">
+                                    <h4>电话</h4>
+                                    <p>+86 138 8888 8888</p>
+                                </div>
+                            </div>
+                            
+                            <div class="contact-item">
+                                <div class="contact-icon">📍</div>
+                                <div class="contact-text">
+                                    <h4>地址</h4>
+                                    <p>北京市海淀区中关村科技园</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h3 style="margin-top: 30px;">社交媒体</h3>
+                        <div class="social-links">
+                            <a href="#" class="social-link">微</a>
+                            <a href="#" class="social-link">微</a>
+                            <a href="#" class="social-link">G</a>
+                            <a href="#" class="social-link">知</a>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-form">
+                        <h3>发送消息</h3>
+                        <form id="messageForm" style="margin-top: 20px;">
+                            <div class="form-group">
+                                <label for="name">姓名</label>
+                                <input type="text" id="name" class="form-control" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email">电子邮箱</label>
+                                <input type="email" id="email" class="form-control" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="subject">主题</label>
+                                <input type="text" id="subject" class="form-control" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="message">消息内容</label>
+                                <textarea id="message" class="form-control" required></textarea>
+                            </div>
+                            
+                            <button type="submit" class="submit-btn">发送消息</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
         </div>
     </div>
+
+    <script>
+        // 页面导航功能
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取所有导航链接
+            const navLinks = document.querySelectorAll('.sidebar a');
+            // 获取所有页面区域
+            const pageSections = document.querySelectorAll('.page-section');
+            
+            // 为每个导航链接添加点击事件
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 移除所有链接的active类
+                    navLinks.forEach(link => link.classList.remove('active'));
+                    // 添加当前链接的active类
+                    this.classList.add('active');
+                    
+                    // 获取目标区域的ID
+                    const targetId = this.getAttribute('href').substring(1);
+                    
+                    // 隐藏所有页面区域
+                    pageSections.forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    
+                    // 显示目标区域
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+            
+            // 表单提交处理
+            const contactForm = document.getElementById('messageForm');
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // 这里可以添加表单提交的实际逻辑
+                    // 例如发送AJAX请求到服务器
+                    
+                    alert('消息已发送！我会尽快回复您。');
+                    contactForm.reset();
+                });
+            }
+        });
+    </script>
 </body>
 </html>
