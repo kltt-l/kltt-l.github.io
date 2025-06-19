@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人主页</title>
+    <title>可折叠导航个人主页</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -175,15 +175,31 @@
             position: relative;
         }
         
+        /* 页面内容区域 */
+        .page-section {
+            display: none;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+            margin-bottom: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .page-section.active {
+            display: block;
+        }
+        
         /* 头部区域 */
         .header {
             display: flex;
             align-items: center;
             margin-bottom: 40px;
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
         }
         
         .avatar {
@@ -370,7 +386,6 @@
             .header {
                 flex-direction: column;
                 text-align: center;
-                padding: 30px 20px;
             }
             
             .avatar {
@@ -407,45 +422,33 @@
             
             <ul class="sidebar-menu">
                 <li class="menu-item">
-                    <a href="#" class="menu-link active">
+                    <a href="#home" class="menu-link active">
                         <span class="menu-icon"><i class="fas fa-home"></i></span>
                         <span class="menu-text">首页</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="#" class="menu-link">
+                    <a href="#about" class="menu-link">
                         <span class="menu-icon"><i class="fas fa-user"></i></span>
                         <span class="menu-text">关于我</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="#" class="menu-link">
+                    <a href="#projects" class="menu-link">
                         <span class="menu-icon"><i class="fas fa-code"></i></span>
                         <span class="menu-text">我的项目</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="#" class="menu-link">
+                    <a href="#blog" class="menu-link">
                         <span class="menu-icon"><i class="fas fa-blog"></i></span>
                         <span class="menu-text">技术博客</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="#" class="menu-link">
+                    <a href="#contact" class="menu-link">
                         <span class="menu-icon"><i class="fas fa-envelope"></i></span>
                         <span class="menu-text">联系方式</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="#" class="menu-link">
-                        <span class="menu-icon"><i class="fas fa-file-alt"></i></span>
-                        <span class="menu-text">个人简历</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="#" class="menu-link">
-                        <span class="menu-icon"><i class="fas fa-project-diagram"></i></span>
-                        <span class="menu-text">项目展示</span>
                     </a>
                 </li>
             </ul>
@@ -462,125 +465,300 @@
             <div class="header">
                 <img src="images/tri-shooter.png" alt="个人头像" class="avatar">
                 <div class="intro">
-                        <h1>李睿钦 | 哺乳动物</h1>
-                        <p>拥有19年睡觉经验，专注于睡高质量、高效率的觉。熟练掌握单人床、双人床、上下床等现代睡觉工具，对睡觉体验设计和优化有深入理解。</p>
+                    <h1>李睿钦 | 哺乳动物</h1>
+                    <p>拥有19年睡觉经验，专注于睡高质量、高效率的觉。熟练掌握单人床、双人床、上下床等现代睡觉工具，对睡觉体验设计和优化有深入理解。</p>
                     <span class="tag"><i class="fas fa-map-marker-alt"></i> 北京市 · 海淀区</span>
                 </div>
             </div>
             
+            <!-- 首页区域 -->
+            <section id="home" class="page-section active">
+                <div class="header">
+                    <div class="intro">
+                        <h1>欢迎来到我的个人主页</h1>
+                        <p>在这里您可以了解我的专业背景、查看我的项目作品、阅读技术博客，或者直接与我取得联系。</p>
+                    </div>
+                </div>
+                
+                <div class="section-title">个人简介</div>
+                <div class="intro">
+                    <p style="margin-bottom: 20px;">我是一名专注于前端开发的技术专家，拥有计算机科学学士学位。从大学时期开始接触Web开发，至今已有5年专业开发经验。</p>
+                    
+                    <p style="margin-bottom: 20px;">在职业生涯中，我曾在两家科技公司担任前端开发工程师，参与过多个大型项目的架构设计和开发工作。我特别注重代码质量和用户体验，坚持编写可维护、高性能的前端代码。</p>
+                </div>
+            </section>
+            
+            <!-- 关于我区域 -->
+            <section id="about" class="page-section">
+                <h2 class="section-title">关于我</h2>
+                
+                <div style="display: flex; gap: 40px;">
+                    <div style="flex: 1;">
+                        <h3 style="font-size: 1.3rem; margin: 25px 0 15px; color: #3182ce;">工作经历</h3>
+                        <div style="margin-bottom: 20px; padding-left: 20px; border-left: 3px solid #e2e8f0;">
+                            <h4 style="font-size: 1.1rem; margin-bottom: 5px;">高级前端工程师 | ABC科技有限公司 (2020-至今)</h4>
+                            <p style="color: #718096; margin-bottom: 10px;">负责公司核心产品的前端架构设计和开发，优化前端性能，指导初级开发人员</p>
+                            
+                            <h4 style="font-size: 1.1rem; margin-bottom: 5px; margin-top: 15px;">前端开发工程师 | XYZ互联网公司 (2018-2020)</h4>
+                            <p style="color: #718096;">参与电商平台的前端开发，实现响应式设计和用户交互优化</p>
+                        </div>
+                        
+                        <h3 style="font-size: 1.3rem; margin: 25px 0 15px; color: #3182ce;">教育背景</h3>
+                        <div style="padding-left: 20px; border-left: 3px solid #e2e8f0;">
+                            <h4 style="font-size: 1.1rem; margin-bottom: 5px;">计算机科学与技术学士 | 北京大学 (2014-2018)</h4>
+                            <p style="color: #718096;">主修课程：数据结构、算法分析、计算机网络、Web开发技术</p>
+                        </div>
+                    </div>
+                    
+                    <div style="flex: 1;">
+                        <h3 style="font-size: 1.3rem; margin-bottom: 25px; color: #3182ce;">专业技能</h3>
+                        
+                        <div style="margin-bottom: 30px;">
+                            <h3>前端技术</h3>
+                            <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px;">
+                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">HTML5/CSS3</span>
+                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">JavaScript (ES6+)</span>
+                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">TypeScript</span>
+                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">React.js</span>
+                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">Vue.js</span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 30px;">
+                            <h3>开发工具</h3>
+                            <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px;">
+                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">Git</span>
+                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">VS Code</span>
+                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">Webpack</span>
+                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">Jest</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
             <!-- 项目区域 -->
-            <h2 class="section-title">精选项目</h2>
-            <div class="projects-grid">
-                <div class="project-card">
-                    <div class="project-image">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div class="project-content">
-                        <h3>企业级数据可视化平台</h3>
-                        <p>基于React和D3.js构建的实时数据仪表盘，支持大规模数据渲染和自定义图表配置。</p>
-                        <div class="project-meta">
-                            <div class="project-tags">
-                                <span class="project-tag">React</span>
-                                <span class="project-tag">D3.js</span>
-                            </div>
-                            <a href="#" class="project-link">查看 <i class="fas fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </div>
+            <section id="projects" class="page-section">
+                <h2 class="section-title">我的项目</h2>
                 
-                <div class="project-card">
-                    <div class="project-image">
-                        <i class="fas fa-shopping-cart"></i>
-                    </div>
-                    <div class="project-content">
-                        <h3>电商后台管理系统</h3>
-                        <p>使用Vue3和TypeScript开发的完整电商解决方案，包含订单管理、库存追踪和数据分析模块。</p>
-                        <div class="project-meta">
-                            <div class="project-tags">
-                                <span class="project-tag">Vue3</span>
-                                <span class="project-tag">TS</span>
+                <div class="projects-grid">
+                    <div class="project-card">
+                        <div class="project-image">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="project-content">
+                            <h3>企业级数据可视化平台</h3>
+                            <p>基于React和D3.js构建的实时数据仪表盘，支持大规模数据渲染和自定义图表配置。</p>
+                            <div class="project-meta">
+                                <div class="project-tags">
+                                    <span class="project-tag">React</span>
+                                    <span class="project-tag">D3.js</span>
+                                </div>
+                                <a href="#" class="project-link">查看 <i class="fas fa-arrow-right"></i></a>
                             </div>
-                            <a href="#" class="project-link">查看 <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card">
+                        <div class="project-image">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="project-content">
+                            <h3>电商后台管理系统</h3>
+                            <p>使用Vue3和TypeScript开发的完整电商解决方案，包含订单管理、库存追踪和数据分析模块。</p>
+                            <div class="project-meta">
+                                <div class="project-tags">
+                                    <span class="project-tag">Vue3</span>
+                                    <span class="project-tag">TS</span>
+                                </div>
+                                <a href="#" class="project-link">查看 <i class="fas fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card">
+                        <div class="project-image">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div class="project-content">
+                            <h3>移动端健康应用</h3>
+                            <p>React Native开发的健康追踪应用，整合运动数据、饮食记录和健康建议功能。</p>
+                            <div class="project-meta">
+                                <div class="project-tags">
+                                    <span class="project-tag">React Native</span>
+                                    <span class="project-tag">健康</span>
+                                </div>
+                                <a href="#" class="project-link">查看 <i class="fas fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card">
+                        <div class="project-image">
+                            <i class="fas fa-paint-brush"></i>
+                        </div>
+                        <div class="project-content">
+                            <h3>UI组件库</h3>
+                            <p>自主设计开发的通用UI组件库，包含60+可复用组件，支持主题定制和响应式设计。</p>
+                            <div class="project-meta">
+                                <div class="project-tags">
+                                    <span class="project-tag">UI设计</span>
+                                    <span class="project-tag">组件库</span>
+                                </div>
+                                <a href="#" class="project-link">查看 <i class="fas fa-arrow-right"></i></a>
+                            </div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="project-card">
-                    <div class="project-image">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                    <div class="project-content">
-                        <h3>移动端健康应用</h3>
-                        <p>React Native开发的健康追踪应用，整合运动数据、饮食记录和健康建议功能。</p>
-                        <div class="project-meta">
-                            <div class="project-tags">
-                                <span class="project-tag">React Native</span>
-                                <span class="project-tag">健康</span>
-                            </div>
-                            <a href="#" class="project-link">查看 <i class="fas fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="project-card">
-                    <div class="project-image">
-                        <i class="fas fa-paint-brush"></i>
-                    </div>
-                    <div class="project-content">
-                        <h3>UI组件库</h3>
-                        <p>自主设计开发的通用UI组件库，包含60+可复用组件，支持主题定制和响应式设计。</p>
-                        <div class="project-meta">
-                            <div class="project-tags">
-                                <span class="project-tag">UI设计</span>
-                                <span class="project-tag">组件库</span>
-                            </div>
-                            <a href="#" class="project-link">查看 <i class="fas fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </section>
             
             <!-- 技术博客区域 -->
-            <h2 class="section-title">最新技术文章</h2>
-            <div class="projects-grid">
-                <div class="project-card">
-                    <div class="project-image" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <div class="project-content">
-                        <h3>React Hooks深度解析</h3>
-                        <p>探索React Hooks的内部机制和最佳实践，提升函数式组件的开发效率。</p>
-                        <div class="project-meta">
-                            <div class="project-tags">
-                                <span class="project-tag">React</span>
-                                <span class="project-tag">Hooks</span>
-                            </div>
-                            <a href="#" class="project-link">阅读 <i class="fas fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </div>
+            <section id="blog" class="page-section">
+                <h2 class="section-title">技术博客</h2>
                 
-                <div class="project-card">
-                    <div class="project-image" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
-                        <i class="fas fa-bolt"></i>
-                    </div>
-                    <div class="project-content">
-                        <h3>前端性能优化实战</h3>
-                        <p>分享大型电商平台的前端性能优化经验，涵盖资源加载、代码分割等关键技术。</p>
-                        <div class="project-meta">
-                            <div class="project-tags">
-                                <span class="project-tag">性能优化</span>
-                                <span class="project-tag">Web</span>
+                <div class="projects-grid">
+                    <div class="project-card">
+                        <div class="project-image" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="project-content">
+                            <h3>React Hooks深度解析</h3>
+                            <p>探索React Hooks的内部机制和最佳实践，提升函数式组件的开发效率。</p>
+                            <div class="project-meta">
+                                <div class="project-tags">
+                                    <span class="project-tag">React</span>
+                                    <span class="project-tag">Hooks</span>
+                                </div>
+                                <a href="#" class="project-link">阅读 <i class="fas fa-arrow-right"></i></a>
                             </div>
-                            <a href="#" class="project-link">阅读 <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card">
+                        <div class="project-image" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="project-content">
+                            <h3>前端性能优化实战</h3>
+                            <p>分享大型电商平台的前端性能优化经验，涵盖资源加载、代码分割等关键技术。</p>
+                            <div class="project-meta">
+                                <div class="project-tags">
+                                    <span class="project-tag">性能优化</span>
+                                    <span class="project-tag">Web</span>
+                                </div>
+                                <a href="#" class="project-link">阅读 <i class="fas fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card">
+                        <div class="project-image" style="background: linear-gradient(135deg, #f39c12, #d35400);">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="project-content">
+                            <h3>现代Web应用安全防护指南</h3>
+                            <p>全面解析常见Web安全威胁(XSS、CSRF等)及防护策略，分享安全编码实践和工具使用。</p>
+                            <div class="project-meta">
+                                <div class="project-tags">
+                                    <span class="project-tag">安全</span>
+                                    <span class="project-tag">Web</span>
+                                </div>
+                                <a href="#" class="project-link">阅读 <i class="fas fa-arrow-right"></i></a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
+            
+            <!-- 联系区域 -->
+            <section id="contact" class="page-section">
+                <h2 class="section-title">联系方式</h2>
+                
+                <div style="display: flex; gap: 40px;">
+                    <div style="flex: 1;">
+                        <h3 style="font-size: 1.3rem; margin-bottom: 25px; color: #3182ce;">联系信息</h3>
+                        
+                        <div style="margin-bottom: 30px;">
+                            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                                <div style="width: 50px; height: 50px; background: #edf2f7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; color: #3182ce; font-size: 1.2rem;">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div>
+                                    <h4 style="font-size: 1.1rem; margin-bottom: 5px;">电子邮箱</h4>
+                                    <p style="color: #718096;">contact@example.com</p>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                                <div style="width: 50px; height: 50px; background: #edf2f7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; color: #3182ce; font-size: 1.2rem;">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div>
+                                    <h4 style="font-size: 1.1rem; margin-bottom: 5px;">电话</h4>
+                                    <p style="color: #718096;">+86 138 8888 8888</p>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; align-items: center;">
+                                <div style="width: 50px; height: 50px; background: #edf2f7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; color: #3182ce; font-size: 1.2rem;">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div>
+                                    <h4 style="font-size: 1.1rem; margin-bottom: 5px;">地址</h4>
+                                    <p style="color: #718096;">北京市海淀区中关村科技园</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h3 style="font-size: 1.3rem; margin-bottom: 25px; color: #3182ce;">社交媒体</h3>
+                        <div style="display: flex; gap: 15px;">
+                            <a href="#" style="display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; background: #edf2f7; border-radius: 50%; color: #3182ce; text-decoration: none; transition: background 0.2s; font-size: 1.2rem;">
+                                <i class="fab fa-weibo"></i>
+                            </a>
+                            <a href="#" style="display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; background: #edf2f7; border-radius: 50%; color: #3182ce; text-decoration: none; transition: background 0.2s; font-size: 1.2rem;">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <a href="#" style="display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; background: #edf2f7; border-radius: 50%; color: #3182ce; text-decoration: none; transition: background 0.2s; font-size: 1.2rem;">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="#" style="display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; background: #edf2f7; border-radius: 50%; color: #3182ce; text-decoration: none; transition: background 0.2s; font-size: 1.2rem;">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div style="flex: 1;">
+                        <h3 style="font-size: 1.3rem; margin-bottom: 25px; color: #3182ce;">发送消息</h3>
+                        <form style="margin-top: 20px;">
+                            <div style="margin-bottom: 20px;">
+                                <label for="name" style="display: block; margin-bottom: 8px; font-weight: 500; color: #4a5568;">姓名</label>
+                                <input type="text" id="name" style="width: 100%; padding: 12px 15px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 1rem; transition: border-color 0.2s;" required>
+                            </div>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <label for="email" style="display: block; margin-bottom: 8px; font-weight: 500; color: #4a5568;">电子邮箱</label>
+                                <input type="email" id="email" style="width: 100%; padding: 12px 15px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 1rem; transition: border-color 0.2s;" required>
+                            </div>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <label for="subject" style="display: block; margin-bottom: 8px; font-weight: 500; color: #4a5568;">主题</label>
+                                <input type="text" id="subject" style="width: 100%; padding: 12px 15px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 1rem; transition: border-color 0.2s;" required>
+                            </div>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <label for="message" style="display: block; margin-bottom: 8px; font-weight: 500; color: #4a5568;">消息内容</label>
+                                <textarea id="message" style="width: 100%; min-height: 150px; padding: 12px 15px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 1rem; transition: border-color 0.2s; resize: vertical;" required></textarea>
+                            </div>
+                            
+                            <button type="submit" style="background-color: #3182ce; color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 1rem; transition: background-color 0.2s;">发送消息</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
             
             <!-- 页脚 -->
             <div class="footer">
-                <p>© 2023 张明的个人主页 | 高级前端工程师 | 专注创造卓越的用户体验</p>
+                <p>© 2025 李睿钦的个人主页 | 哺乳动物 | 专注创造卓越的睡觉体验</p>
                 <p style="margin-top: 10px;">
                     <i class="fas fa-envelope"></i> contact@example.com | 
                     <i class="fab fa-github"></i> github.com/zhangming | 
@@ -604,28 +782,40 @@
             sidebar.classList.remove('collapsed');
         });
         
-        // 设置活动菜单项
-        const menuLinks = document.querySelectorAll('.menu-link');
-        
-        menuLinks.forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                // 移除所有链接的active类
-                menuLinks.forEach(link => link.classList.remove('active'));
-                
-                // 添加当前链接的active类
-                this.classList.add('active');
+        // 导航功能
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取所有导航链接
+            const navLinks = document.querySelectorAll('.menu-link');
+            // 获取所有页面区域
+            const pageSections = document.querySelectorAll('.page-section');
+            
+            // 为每个导航链接添加点击事件
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 移除所有链接的active类
+                    navLinks.forEach(link => link.classList.remove('active'));
+                    // 添加当前链接的active类
+                    this.classList.add('active');
+                    
+                    // 获取目标区域的ID
+                    const targetId = this.getAttribute('href');
+                    
+                    // 隐藏所有页面区域
+                    pageSections.forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    
+                    // 显示目标区域
+                    document.querySelector(targetId).classList.add('active');
+                    
+                    // 在移动设备上，点击导航链接后自动折叠侧边栏
+                    if (window.innerWidth <= 992) {
+                        sidebar.classList.add('collapsed');
+                    }
+                });
             });
-        });
-        
-        // 在移动设备上，点击内容区域收起侧边栏
-        const mainContent = document.querySelector('.main-content');
-        
-        mainContent.addEventListener('click', () => {
-            if (window.innerWidth <= 992) {
-                sidebar.classList.add('collapsed');
-            }
         });
     </script>
 </body>
