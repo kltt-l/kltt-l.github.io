@@ -5,158 +5,267 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>个人主页</title>
     <style>
-        body {
+        * {
             margin: 0;
-            font-family: Arial, sans-serif;
-            display: flex;
-            height: 100vh; /* 页面高度充满屏幕 */
-            background-color: #f4f4f4;
-            color: #333;
-        }
-
-        /* 左侧栏样式 */
-        .sidebar {
-            width: 250px;
-            background-color: #fff; /* 改为白色背景 */
-            padding: 20px;
-            border-right: 1px solid #ddd; /* 添加一条右侧的灰色分界线 */
+            padding: 0;
             box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9fafb;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* 左侧边栏样式 - 简洁分界线 */
+        .sidebar {
+            width: 220px;
+            padding: 30px 20px;
+            border-right: 1px solid #e1e4e8;
+            position: relative;
+            background-color: #fff;
+            z-index: 10;
+        }
+        
+        .sidebar-content {
             display: flex;
             flex-direction: column;
-            justify-content: center; /* 垂直居中，使左侧栏高度与头像下缘齐平 */
+            height: 100%;
         }
-
+        
+        .sidebar h2 {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            color: #2d3748;
+            font-weight: 600;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #edf2f7;
+        }
+        
         .sidebar ul {
             list-style: none;
-            padding: 0;
-            margin: 0;
         }
-
-        .sidebar ul li {
-            margin: 15px 0;
+        
+        .sidebar li {
+            margin-bottom: 16px;
         }
-
-        .sidebar ul li a {
+        
+        .sidebar a {
             text-decoration: none;
-            color: #0073e6;
-            font-size: 16px;
+            color: #4a5568;
+            font-size: 1.05rem;
+            transition: all 0.2s ease;
+            display: block;
+            padding: 8px 10px;
+            border-radius: 6px;
         }
-
-        .sidebar ul li a:hover {
-            text-decoration: underline;
+        
+        .sidebar a:hover, .sidebar a.active {
+            background-color: #f7fafc;
+            color: #3182ce;
+            font-weight: 500;
         }
-
+        
         /* 主体内容区域 */
-        .main {
-            flex: 1; /* 占据剩余空间 */
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            overflow-y: auto; /* 如果内容超出，添加滚动条 */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            background-color: #f9fafb;
         }
-
-        /* 顶部区域（头像和介绍） */
+        
+        /* 头部区域 */
         .header {
             display: flex;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #e2e8f0;
         }
-
-        .header img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%; /* 圆形头像 */
+        
+        .avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
             object-fit: cover;
-            margin-right: 20px;
-            border: 3px solid #0073e6;
+            border: 3px solid #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-right: 25px;
         }
-
-        .header .intro {
-            font-size: 18px;
-            line-height: 1.5;
+        
+        .intro {
+            flex: 1;
         }
-
-        /* 项目按钮容器 */
-        .projects {
-            display: flex;
-            flex-wrap: wrap; /* 自动换行 */
-            gap: 20px; /* 项目之间的间距 */
+        
+        .intro h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: #2d3748;
         }
-
-        .project {
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            width: calc(33.333% - 20px); /* 每行显示 3 个 */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            transition: transform 0.2s, box-shadow 0.2s;
+        
+        .intro p {
+            font-size: 1.1rem;
+            color: #4a5568;
+            max-width: 600px;
         }
-
-        .project:hover {
+        
+        /* 项目区域 */
+        .projects-section {
+            margin-top: 30px;
+        }
+        
+        .projects-section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: #2d3748;
+            font-weight: 600;
+        }
+        
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        
+        .project-card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .project-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            border-color: #cbd5e0;
         }
-
-        .project a {
+        
+        .project-card h3 {
+            margin-bottom: 15px;
+            color: #3182ce;
+            font-size: 1.3rem;
+        }
+        
+        .project-card p {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+        
+        .project-link {
+            display: inline-block;
+            background-color: #3182ce;
+            color: white;
+            padding: 8px 18px;
+            border-radius: 6px;
             text-decoration: none;
-            color: #0073e6;
-            font-weight: bold;
-            font-size: 18px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            font-size: 0.95rem;
         }
-
-        .project a:hover {
-            text-decoration: underline;
+        
+        .project-link:hover {
+            background-color: #2b6cb0;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e1e4e8;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .avatar {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- 左侧栏 -->
-    <div class="sidebar">
-        <ul>
-            <li><a href="#about">关于我</a></li>
-            <li><a href="#projects">我的项目</a></li>
-            <li><a href="#contact">联系我</a></li>
-        </ul>
-    </div>
-
-    <!-- 主体内容 -->
-    <div class="main">
-        <!-- 顶部区域 -->
-        <div class="header">
-            <img src="images/photo.png" alt="我的头像">
-            <div class="intro">
-                <h2>你好，我是[你的名字]</h2>
-                <p>我是一个[你的职业/身份]，对[你的兴趣领域]充满热情，喜欢学习新技术并分享经验。</p>
+    <div class="container">
+        <!-- 左侧边栏 - 简洁分界线 -->
+        <div class="sidebar">
+            <div class="sidebar-content">
+                <h2>导航菜单</h2>
+                <ul>
+                    <li><a href="#home" class="active">首页</a></li>
+                    <li><a href="#about">关于我</a></li>
+                    <li><a href="#projects">我的项目</a></li>
+                    <li><a href="#blog">技术博客</a></li>
+                    <li><a href="#contact">联系方式</a></li>
+                </ul>
             </div>
         </div>
-
-        <!-- 项目区域 -->
-        <div id="projects" class="projects">
-            <div class="project">
-                <a href="https://example.com/project1" target="_blank">项目 1</a>
-                <p>这个项目是关于...</p>
+        
+        <!-- 主体内容 -->
+        <div class="main-content">
+            <!-- 头部区域 -->
+            <div class="header">
+                <img src="images/photo.png" alt="个人头像" class="avatar">
+                <div class="intro">
+                    <h1>张明 | 高级前端工程师</h1>
+                    <p>拥有5年前端开发经验，专注于构建高性能、用户友好的Web应用。熟练掌握React、Vue等现代前端框架，对用户体验设计和性能优化有深入理解。热爱开源社区，持续学习新技术并分享知识。</p>
+                </div>
             </div>
-            <div class="project">
-                <a href="https://example.com/project2" target="_blank">项目 2</a>
-                <p>这个项目是关于...</p>
-            </div>
-            <div class="project">
-                <a href="https://example.com/project3" target="_blank">项目 3</a>
-                <p>这个项目是关于...</p>
-            </div>
-            <div class="project">
-                <a href="https://example.com/project4" target="_blank">项目 4</a>
-                <p>这个项目是关于...</p>
-            </div>
-            <div class="project">
-                <a href="https://example.com/project5" target="_blank">项目 5</a>
-                <p>这个项目是关于...</p>
-            </div>
-            <div class="project">
-                <a href="https://example.com/project6" target="_blank">项目 6</a>
-                <p>这个项目是关于...</p>
+            
+            <!-- 项目区域 -->
+            <div class="projects-section">
+                <h2>精选项目</h2>
+                <div class="projects-grid">
+                    <div class="project-card">
+                        <h3>企业级数据可视化平台</h3>
+                        <p>基于React和D3.js构建的实时数据仪表盘，支持大规模数据渲染和自定义图表配置。</p>
+                        <a href="#" class="project-link">查看项目</a>
+                    </div>
+                    
+                    <div class="project-card">
+                        <h3>电商后台管理系统</h3>
+                        <p>使用Vue3和TypeScript开发的完整电商解决方案，包含订单管理、库存追踪和数据分析模块。</p>
+                        <a href="#" class="project-link">查看项目</a>
+                    </div>
+                    
+                    <div class="project-card">
+                        <h3>移动端健康应用</h3>
+                        <p>React Native开发的健康追踪应用，整合运动数据、饮食记录和健康建议功能。</p>
+                        <a href="#" class="project-link">查看项目</a>
+                    </div>
+                    
+                    <div class="project-card">
+                        <h3>UI组件库</h3>
+                        <p>自主设计开发的通用UI组件库，包含60+可复用组件，支持主题定制和响应式设计。</p>
+                        <a href="#" class="project-link">查看项目</a>
+                    </div>
+                    
+                    <div class="project-card">
+                        <h3>实时协作白板工具</h3>
+                        <p>基于WebRTC的多人协作平台，支持实时绘图、文本编辑和屏幕共享功能。</p>
+                        <a href="#" class="project-link">查看项目</a>
+                    </div>
+                    
+                    <div class="project-card">
+                        <h3>个人博客系统</h3>
+                        <p>使用Next.js和Node.js构建的静态博客生成器，支持Markdown写作和自动化部署。</p>
+                        <a href="#" class="project-link">查看项目</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
