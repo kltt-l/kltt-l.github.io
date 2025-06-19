@@ -17,19 +17,19 @@
         /* 左侧栏样式 */
         .sidebar {
             width: 250px;
-            background-color: #0073e6;
-            color: white;
+            background-color: #fff; /* 改为白色背景 */
             padding: 20px;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* 添加阴影 */
-        }
-
-        .sidebar h2 {
-            margin-top: 0;
+            border-right: 1px solid #ddd; /* 添加一条右侧的灰色分界线 */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* 垂直居中，使左侧栏高度与头像下缘齐平 */
         }
 
         .sidebar ul {
             list-style: none;
             padding: 0;
+            margin: 0;
         }
 
         .sidebar ul li {
@@ -38,7 +38,7 @@
 
         .sidebar ul li a {
             text-decoration: none;
-            color: white;
+            color: #0073e6;
             font-size: 16px;
         }
 
@@ -114,7 +114,6 @@
 <body>
     <!-- 左侧栏 -->
     <div class="sidebar">
-        <h2>目录</h2>
         <ul>
             <li><a href="#about">关于我</a></li>
             <li><a href="#projects">我的项目</a></li>
@@ -126,7 +125,7 @@
     <div class="main">
         <!-- 顶部区域 -->
         <div class="header">
-            <img src="images/tri-shooter.png" alt="我的头像">
+            <img src="images/photo.png" alt="我的头像">
             <div class="intro">
                 <h2>你好，我是[你的名字]</h2>
                 <p>我是一个[你的职业/身份]，对[你的兴趣领域]充满热情，喜欢学习新技术并分享经验。</p>
