@@ -1081,22 +1081,67 @@
             gfm: true,
         });
 
+        function encodePath(path) {
+            return path.split('/').map(part => {
+                try {
+                    return encodeURIComponent(decodeURIComponent(part));
+                } catch {
+                    return encodeURIComponent(part);
+                }
+            }).join('/');
+        }
+
+        function normalizeRepoPath(path) {
+            try {
+                return path.split('/').map(part => decodeURIComponent(part)).join('/');
+            } catch {
+                return path;
+            }
+        }
+
         function resolveImagePath(filePath, href) {
             if (/^https?:\/\//i.test(href)) return href;
 
+            const normalized = normalizeRepoPath(href);
             const mdDir = filePath.includes('/') ? filePath.slice(0, filePath.lastIndexOf('/')) : '';
-            if (!href.includes('/') && /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(href)) {
-                return `${mdDir}/attachments/${href}`;
+
+            if (normalized.startsWith('attachments/')) {
+                return mdDir ? `${mdDir}/${normalized}` : normalized;
             }
 
-            return resolveNotePath(filePath, href);
+            if (!normalized.includes('/') && /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(normalized)) {
+                return mdDir ? `${mdDir}/attachments/${normalized}` : `attachments/${normalized}`;
+            }
+
+            return resolveNotePath(filePath, normalized);
+        }
+
+        function applyImageSources(img, urls) {
+            let index = 0;
+            img.onerror = () => {
+                index += 1;
+                if (index < urls.length) {
+                    img.src = urls[index];
+                } else {
+                    img.onerror = null;
+                }
+            };
+            img.referrerPolicy = 'no-referrer';
+            img.loading = 'lazy';
+            img.src = urls[0];
         }
 
         function postProcessNoteDom(wrapper, owner, repo, branch, filePath) {
             wrapper.querySelectorAll('img').forEach(img => {
                 const href = img.getAttribute('src');
-                if (!href || /^https?:\/\//i.test(href)) return;
-                img.src = getRawUrl(owner, repo, branch, resolveImagePath(filePath, href));
+                if (!href) return;
+                if (/^https?:\/\//i.test(href)) {
+                    img.referrerPolicy = 'no-referrer';
+                    img.loading = 'lazy';
+                    return;
+                }
+                const imagePath = resolveImagePath(filePath, href);
+                applyImageSources(img, getNoteAssetUrls(owner, repo, branch, imagePath));
             });
 
             wrapper.querySelectorAll('a').forEach(link => {
@@ -1124,7 +1169,7 @@
                 const imagePath = target.includes('/')
                     ? resolveNotePath(filePath, target)
                     : `${mdDir}/attachments/${target}`;
-                return `![${target}](${imagePath})`;
+                return `![${target}](${encodePath(imagePath)})`;
             });
 
             content = content.replace(/(?<!!)\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/g, (match, target) => {
@@ -1184,10 +1229,6 @@
             return path.split('/').pop().replace(/\.md$/i, '');
         }
 
-        function encodePath(path) {
-            return path.split('/').map(encodeURIComponent).join('/');
-        }
-
         function getJsDelivrUrl(owner, repo, branch, path) {
             return `https://cdn.jsdelivr.net/gh/${owner}/${repo}@${branch}/${encodePath(path)}`;
         }
@@ -1197,9 +1238,13 @@
         }
 
         function getNoteAssetUrls(owner, repo, branch, path) {
+            const encoded = encodePath(path);
+            const base = `${owner}/${repo}@${branch}/${encoded}`;
             return [
-                getJsDelivrUrl(owner, repo, branch, path),
-                getRawGithubUrl(owner, repo, branch, path),
+                `https://cdn.jsdelivr.net/gh/${base}`,
+                `https://gcore.jsdelivr.net/gh/${base}`,
+                `https://fastly.jsdelivr.net/gh/${base}`,
+                `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${encoded}`,
             ];
         }
 
