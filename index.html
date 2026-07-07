@@ -701,13 +701,13 @@
 
         const NOTE_ICONS = ['fa-book', 'fa-bolt', 'fa-lock', 'fa-graduation-cap', 'fa-pen'];
 
-        async function fetchAllRepos(username) {
+        async function fetchUserRepos(username) {
             const repos = [];
             let page = 1;
 
             while (true) {
                 const response = await fetch(
-                    `https://api.github.com/users/${username}/repos?per_page=100&sort=updated&page=${page}`
+                    `https://api.github.com/users/${username}/repos?type=all&sort=updated&per_page=100&page=${page}`
                 );
                 if (!response.ok) {
                     throw new Error(`GitHub API 请求失败 (${response.status})`);
@@ -724,6 +724,49 @@
             return repos;
         }
 
+        async function fetchContributedRepos(username) {
+            const repos = [];
+            let page = 1;
+
+            while (page <= 10) {
+                const response = await fetch(
+                    `https://api.github.com/search/repositories?q=contributor:${username}&sort=updated&per_page=100&page=${page}`
+                );
+                if (!response.ok) {
+                    throw new Error(`GitHub Search API 请求失败 (${response.status})`);
+                }
+
+                const data = await response.json();
+                if (!data.items || data.items.length === 0) break;
+
+                repos.push(...data.items);
+                if (data.items.length < 100) break;
+                page++;
+            }
+
+            return repos;
+        }
+
+        function dedupeRepos(repos) {
+            const seen = new Map();
+            for (const repo of repos) {
+                if (!seen.has(repo.full_name)) {
+                    seen.set(repo.full_name, repo);
+                }
+            }
+            return Array.from(seen.values()).sort(
+                (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
+            );
+        }
+
+        async function fetchAllRepos(username) {
+            const [userRepos, contributedRepos] = await Promise.all([
+                fetchUserRepos(username),
+                fetchContributedRepos(username),
+            ]);
+            return dedupeRepos([...userRepos, ...contributedRepos]);
+        }
+
         function getLanguageIcon(language) {
             return LANGUAGE_ICONS[language] || ['fas', 'fa-code'];
         }
@@ -732,9 +775,14 @@
             return name.replace(/^Notes?-/i, '').replace(/-/g, ' ');
         }
 
+        function getProjectTitle(repo) {
+            return repo.owner.login === GITHUB_USER ? repo.name : repo.full_name;
+        }
+
         function createProjectCard(repo) {
             const language = repo.language || '其他';
             const [iconPrefix, iconName] = getLanguageIcon(repo.language);
+            const title = getProjectTitle(repo);
             const description = repo.description || repo.name;
 
             const card = document.createElement('div');
@@ -744,7 +792,7 @@
                     <i class="${iconPrefix} ${iconName}"></i>
                 </div>
                 <div class="project-content">
-                    <h3>${repo.name}</h3>
+                    <h3>${title}</h3>
                     <p>${description}</p>
                     <div class="project-meta">
                         <div class="project-tags">
