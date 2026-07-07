@@ -1,0 +1,61 @@
+name: Update repos.json
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/update-repos.yml
+
+permissions:
+  contents: write
+
+jobs:
+  update-repos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch repositories and write data/repos.json
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USER: kltt-l
+        run: |
+          PAGE=1
+          REPOS="[]"
+          while true; do
+            RESPONSE=$(curl -sf \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/users/${GITHUB_USER}/repos?type=all&sort=updated&per_page=100&page=${PAGE}")
+            COUNT=$(echo "$RESPONSE" | jq 'length')
+            if [ "$COUNT" -eq 0 ]; then
+              break
+            fi
+            REPOS=$(jq -s 'add' <<< "$REPOS"$'\n'"$RESPONSE")
+            if [ "$COUNT" -lt 100 ]; then
+              break
+            fi
+            PAGE=$((PAGE + 1))
+          done
+
+          echo "$REPOS" | jq '[.[] | {
+            name: .name,
+            full_name: .full_name,
+            html_url: .html_url,
+            description: .description,
+            language: .language,
+            updated_at: .updated_at,
+            default_branch: .default_branch,
+            owner: { login: .owner.login }
+          }]' > data/repos.json
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/repos.json
+          git diff --staged --quiet || git commit -m "chore: update repos.json from GitHub"
+          git push

@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Notes-Introduction-to-AI-PKU-2025Spring",
+    "full_name": "kltt-l/Notes-Introduction-to-AI-PKU-2025Spring",
+    "html_url": "https://github.com/kltt-l/Notes-Introduction-to-AI-PKU-2025Spring",
+    "description": null,
+    "language": "Python",
+    "updated_at": "2025-06-01T00:00:00Z",
+    "default_branch": "main",
+    "owner": { "login": "kltt-l" }
+  },
+  {
+    "name": "FractalOctGen",
+    "full_name": "kltt-l/FractalOctGen",
+    "html_url": "https://github.com/kltt-l/FractalOctGen",
+    "description": "Frontiers of Geometric Computation, final project.",
+    "language": "Python",
+    "updated_at": "2025-05-01T00:00:00Z",
+    "default_branch": "main",
+    "owner": { "login": "kltt-l" }
+  },
+  {
+    "name": "-1",
+    "full_name": "kltt-l/-1",
+    "html_url": "https://github.com/kltt-l/-1",
+    "description": "我是远程仓库",
+    "language": null,
+    "updated_at": "2025-04-01T00:00:00Z",
+    "default_branch": "main",
+    "owner": { "login": "kltt-l" }
+  },
+  {
+    "name": "Q_le_tt_DeskPet",
+    "full_name": "lh314-pku/Q_le_tt_DeskPet",
+    "html_url": "https://github.com/lh314-pku/Q_le_tt_DeskPet",
+    "description": "程设大作业",
+    "language": "Python",
+    "updated_at": "2025-06-28T10:31:43Z",
+    "default_branch": "main",
+    "owner": { "login": "lh314-pku" }
+  }
+]
