@@ -1065,7 +1065,8 @@
             `;
             card.querySelector('.note-read-link').addEventListener('click', (e) => {
                 e.preventDefault();
-                openNoteReader(repo);
+                history.pushState(null, '', `#note/${repo.name}`);
+                syncRouteFromLocation();
             });
             return card;
         }
@@ -1075,6 +1076,15 @@
         let noteLoadSeq = 0;
         let noteFetchController = null;
         let noteReaderPromise = null;
+        let routeSyncSeq = 0;
+
+        function isNoteRoute() {
+            return location.hash.startsWith('#note/');
+        }
+
+        function isRouteSyncCurrent(syncId) {
+            return syncId === routeSyncSeq;
+        }
 
         marked.setOptions({
             breaks: true,
@@ -1444,16 +1454,44 @@
             sidebar.classList.remove('collapsed');
         }
 
-        function exitNoteReader() {
+        function resetNoteReaderUI() {
             noteLoadSeq++;
             if (noteFetchController) noteFetchController.abort();
             document.getElementById('sidebar-nav').classList.remove('hidden');
             document.getElementById('sidebar-note-toc').classList.add('hidden');
             document.body.classList.remove('note-reading');
             currentNoteState = null;
-            if (location.hash.startsWith('#note/')) {
-                history.replaceState(null, '', '#blog');
+        }
+
+        function exitNoteReader() {
+            resetNoteReaderUI();
+        }
+
+        function getSectionIdFromHash() {
+            const id = location.hash.replace(/^#/, '');
+            const validSections = ['home', 'about', 'projects', 'blog', 'contact'];
+            if (!id || id.startsWith('note/')) return 'home';
+            return validSections.includes(id) ? id : 'home';
+        }
+
+        function showMainSection(sectionId) {
+            showPageSection(sectionId);
+            document.querySelectorAll('#sidebar-nav .menu-link').forEach(link => {
+                link.classList.toggle('active', link.getAttribute('href') === `#${sectionId}`);
+            });
+        }
+
+        async function syncRouteFromLocation() {
+            const syncId = ++routeSyncSeq;
+
+            if (isNoteRoute()) {
+                await openNoteFromHash(syncId);
+                return;
             }
+
+            noteReaderPromise = null;
+            resetNoteReaderUI();
+            showMainSection(getSectionIdFromHash());
         }
 
         function setNoteHash(repoName, path) {
@@ -1474,9 +1512,10 @@
             };
         }
 
-        async function loadNoteFile(path) {
+        async function loadNoteFile(path, syncId = routeSyncSeq) {
             if (!currentNoteState) return;
             if (path === currentNoteState.currentPath) return;
+            if (!isNoteRoute() || !isRouteSyncCurrent(syncId)) return;
 
             const loadSeq = ++noteLoadSeq;
             if (noteFetchController) noteFetchController.abort();
@@ -1487,19 +1526,21 @@
             const contentEl = document.getElementById('note-content');
             contentEl.innerHTML = '<p class="note-loading">正在加载笔记...</p>';
             updateTocActive(path);
-            setNoteHash(currentNoteState.repoName, path);
+            if (isNoteRoute() && isRouteSyncCurrent(syncId)) {
+                setNoteHash(currentNoteState.repoName, path);
+            }
             document.getElementById('note-reader-title').textContent = getNoteFileTitle(path);
 
             try {
                 const markdown = await fetchMarkdown(owner, repo, branch, path, signal);
-                if (loadSeq !== noteLoadSeq) return;
+                if (loadSeq !== noteLoadSeq || !isNoteRoute() || !isRouteSyncCurrent(syncId)) return;
 
                 currentNoteState.currentPath = path;
                 contentEl.innerHTML = renderMarkdown(markdown, owner, repo, branch, path);
                 contentEl.querySelectorAll('a[data-note-path]').forEach(link => {
                     link.addEventListener('click', (e) => {
                         e.preventDefault();
-                        loadNoteFile(link.dataset.notePath);
+                        loadNoteFile(link.dataset.notePath, syncId);
                     });
                 });
                 contentEl.querySelectorAll('pre code').forEach(block => {
@@ -1508,6 +1549,7 @@
                 window.scrollTo(0, 0);
             } catch (error) {
                 if (error.name === 'AbortError' || loadSeq !== noteLoadSeq) return;
+                if (!isNoteRoute() || !isRouteSyncCurrent(syncId)) return;
                 const message = error.message === 'Failed to fetch'
                     ? '网络连接失败，请稍后重试'
                     : error.message;
@@ -1515,8 +1557,12 @@
             }
         }
 
-        async function openNoteReader(repo, initialPath = null) {
-            if (noteReaderPromise) return noteReaderPromise;
+        async function openNoteReader(repo, initialPath = null, syncId = routeSyncSeq) {
+            if (!isNoteRoute() || !isRouteSyncCurrent(syncId)) return;
+            if (noteReaderPromise) {
+                if (currentNoteState?.repoName === repo.name) return noteReaderPromise;
+                noteReaderPromise = null;
+            }
 
             noteReaderPromise = (async () => {
             const owner = repo.owner.login;
@@ -1535,6 +1581,7 @@
             try {
                 const branch = repo.default_branch || 'main';
                 const mdFiles = await fetchRepoMdFiles(owner, repoName, branch, repo.md_files);
+                if (!isNoteRoute() || !isRouteSyncCurrent(syncId)) return;
 
                 if (mdFiles.length === 0) {
                     throw new Error('该仓库中没有找到 Markdown 笔记');
@@ -1550,8 +1597,9 @@
                     ? initialPath
                     : mdFiles[0];
 
-                await loadNoteFile(defaultPath);
+                await loadNoteFile(defaultPath, syncId);
             } catch (error) {
+                if (!isNoteRoute() || !isRouteSyncCurrent(syncId)) return;
                 const message = error.message === 'Failed to fetch'
                     ? '网络连接失败，无法加载笔记目录'
                     : error.message;
@@ -1566,19 +1614,39 @@
             }
         }
 
-        async function openNoteFromHash() {
+        async function openNoteFromHash(syncId) {
+            if (!isRouteSyncCurrent(syncId) || !isNoteRoute()) return;
+
             const parsed = parseNoteHash();
             if (!parsed) return;
 
             if (noteReposCache.length === 0) {
                 const repos = await fetchAllRepos();
+                if (!isRouteSyncCurrent(syncId) || !isNoteRoute()) return;
                 noteReposCache = repos.filter(repo => NOTE_PREFIX.test(repo.name));
             }
 
             const repo = noteReposCache.find(item => item.name === parsed.repoName);
-            if (repo) {
-                await openNoteReader(repo, parsed.path);
+            if (!repo) return;
+
+            if (currentNoteState && currentNoteState.repoName !== parsed.repoName) {
+                noteReaderPromise = null;
+                resetNoteReaderUI();
             }
+
+            if (
+                currentNoteState
+                && currentNoteState.repoName === parsed.repoName
+                && parsed.path
+                && currentNoteState.mdFiles.includes(parsed.path)
+            ) {
+                enterNoteSidebar(formatNoteTitle(parsed.repoName));
+                showPageSection('note-reader');
+                await loadNoteFile(parsed.path, syncId);
+                return;
+            }
+
+            await openNoteReader(repo, parsed.path, syncId);
         }
 
         function renderGrid(grid, items, createCard, emptyText) {
@@ -1608,52 +1676,27 @@
         // 导航功能
         document.addEventListener('DOMContentLoaded', function() {
             showRandomMotto();
-            loadGitHubRepos().then(() => openNoteFromHash());
-            window.addEventListener('hashchange', () => {
-                if (location.hash.startsWith('#note/')) {
-                    openNoteFromHash();
-                } else if (currentNoteState) {
-                    exitNoteReader();
-                }
-            });
+            loadGitHubRepos().then(() => syncRouteFromLocation());
+            window.addEventListener('hashchange', () => syncRouteFromLocation());
+            window.addEventListener('popstate', () => syncRouteFromLocation());
 
             document.getElementById('note-back-link').addEventListener('click', (e) => {
                 e.preventDefault();
-                exitNoteReader();
-                showPageSection('blog');
-                document.querySelectorAll('.menu-link').forEach(link => link.classList.remove('active'));
-                document.querySelector('.menu-link[href="#blog"]').classList.add('active');
+                history.pushState(null, '', '#blog');
+                syncRouteFromLocation();
             });
 
             // 获取所有导航链接
             const navLinks = document.querySelectorAll('#sidebar-nav .menu-link');
-            // 获取所有页面区域
-            const pageSections = document.querySelectorAll('.page-section');
             
             // 为每个导航链接添加点击事件
             navLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
-                    exitNoteReader();
-                    
-                    // 移除所有链接的active类
-                    navLinks.forEach(link => link.classList.remove('active'));
-                    // 添加当前链接的active类
-                    this.classList.add('active');
-                    
-                    // 获取目标区域的ID
                     const targetId = this.getAttribute('href').slice(1);
-                    
-                    // 隐藏所有页面区域
-                    pageSections.forEach(section => {
-                        section.classList.remove('active');
-                    });
-                    
-                    // 显示目标区域
-                    document.getElementById(targetId).classList.add('active');
-                    history.replaceState(null, '', `#${targetId}`);
-                    
-                    // 在移动设备上，点击导航链接后自动折叠侧边栏
+                    history.pushState(null, '', `#${targetId}`);
+                    syncRouteFromLocation();
+
                     if (window.innerWidth <= 992) {
                         sidebar.classList.add('collapsed');
                     }
