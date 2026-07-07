@@ -6,6 +6,7 @@
     <title>快乐堂堂的个人主页</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <style>
@@ -53,18 +54,28 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 10px;
+            min-width: 0;
             margin-bottom: 30px;
             padding-bottom: 15px;
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
         
         .sidebar-title {
+            flex: 1;
+            min-width: 0;
             font-size: 1.5rem;
             font-weight: 700;
             color: #2c3e50;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             opacity: 1;
             transition: opacity 0.3s ease;
+        }
+
+        #note-sidebar-title {
+            font-size: 1.15rem;
         }
         
         .sidebar.collapsed .sidebar-title {
@@ -73,6 +84,7 @@
         }
         
         .toggle-btn {
+            flex-shrink: 0;
             background: #3498db;
             color: white;
             border: none;
@@ -307,6 +319,12 @@
 
         .markdown-body a:hover {
             text-decoration: underline;
+        }
+
+        .markdown-body .katex-display {
+            margin: 1em 0;
+            overflow-x: auto;
+            overflow-y: hidden;
         }
 
         .note-loading {
@@ -854,6 +872,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
     <script>
         const MOTTOES = [
             '不要轻视简单，简单意味着坚固。',
@@ -1063,14 +1082,22 @@
             gfm: true,
         });
 
-        function postProcessNoteHtml(html, owner, repo, branch, filePath) {
-            const wrapper = document.createElement('div');
-            wrapper.innerHTML = html;
+        function resolveImagePath(filePath, href) {
+            if (/^https?:\/\//i.test(href)) return href;
 
+            const mdDir = filePath.includes('/') ? filePath.slice(0, filePath.lastIndexOf('/')) : '';
+            if (!href.includes('/') && /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(href)) {
+                return `${mdDir}/attachments/${href}`;
+            }
+
+            return resolveNotePath(filePath, href);
+        }
+
+        function postProcessNoteDom(wrapper, owner, repo, branch, filePath) {
             wrapper.querySelectorAll('img').forEach(img => {
                 const href = img.getAttribute('src');
                 if (!href || /^https?:\/\//i.test(href)) return;
-                img.src = getRawUrl(owner, repo, branch, resolveNotePath(filePath, href));
+                img.src = getRawUrl(owner, repo, branch, resolveImagePath(filePath, href));
             });
 
             wrapper.querySelectorAll('a').forEach(link => {
@@ -1086,8 +1113,63 @@
                     link.rel = 'noopener noreferrer';
                 }
             });
+        }
 
-            return wrapper.innerHTML;
+        function preprocessObsidian(content, filePath) {
+            const mdDir = filePath.includes('/') ? filePath.slice(0, filePath.lastIndexOf('/')) : '';
+
+            content = content.replace(/!\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/g, (match, target) => {
+                target = target.trim();
+                if (!/\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(target)) return match;
+
+                const imagePath = target.includes('/')
+                    ? resolveNotePath(filePath, target)
+                    : `${mdDir}/attachments/${target}`;
+                return `![${target}](${imagePath})`;
+            });
+
+            content = content.replace(/(?<!!)\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/g, (match, target) => {
+                target = target.trim();
+                if (/\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(target)) return match;
+
+                const notePath = target.endsWith('.md')
+                    ? resolveNotePath(filePath, target)
+                    : resolveNotePath(filePath, `${target}.md`);
+                return `[${target}](${notePath})`;
+            });
+
+            return content;
+        }
+
+        function injectMathPlaceholders(content, mathStore) {
+            content = content.replace(/\$\$([\s\S]*?)\$\$/g, (match, formula) => {
+                const id = mathStore.length;
+                mathStore.push({ formula: formula.trim(), display: true });
+                return `<div class="math-display" data-math-id="${id}"></div>`;
+            });
+
+            content = content.replace(/(?<!\$)\$(?!\$)([^\$\n]+?)\$(?!\$)/g, (match, formula) => {
+                const id = mathStore.length;
+                mathStore.push({ formula: formula.trim(), display: false });
+                return `<span class="math-inline" data-math-id="${id}"></span>`;
+            });
+
+            return content;
+        }
+
+        function renderMathPlaceholders(wrapper, mathStore) {
+            wrapper.querySelectorAll('.math-display, .math-inline').forEach(el => {
+                const item = mathStore[el.dataset.mathId];
+                if (!item || typeof katex === 'undefined') return;
+                katex.render(item.formula, el, {
+                    displayMode: item.display,
+                    throwOnError: false,
+                });
+            });
+        }
+
+        function getNoteFileTitle(path) {
+            return path.split('/').pop().replace(/\.md$/i, '');
         }
 
         function encodePath(path) {
@@ -1173,7 +1255,15 @@
         }
 
         function renderMarkdown(content, owner, repo, branch, filePath) {
-            return postProcessNoteHtml(marked.parse(content), owner, repo, branch, filePath);
+            const mathStore = [];
+            content = preprocessObsidian(content, filePath);
+            content = injectMathPlaceholders(content, mathStore);
+
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = marked.parse(content);
+            postProcessNoteDom(wrapper, owner, repo, branch, filePath);
+            renderMathPlaceholders(wrapper, mathStore);
+            return wrapper.innerHTML;
         }
 
         async function fetchRepoMdFiles(owner, repo, branch) {
@@ -1206,7 +1296,9 @@
         function enterNoteSidebar(title) {
             document.getElementById('sidebar-nav').classList.add('hidden');
             document.getElementById('sidebar-note-toc').classList.remove('hidden');
-            document.getElementById('note-sidebar-title').textContent = title;
+            const titleEl = document.getElementById('note-sidebar-title');
+            titleEl.textContent = title;
+            titleEl.title = title;
             document.body.classList.add('note-reading');
             sidebar.classList.remove('collapsed');
         }
@@ -1248,6 +1340,7 @@
             updateTocActive(path);
             setNoteHash(currentNoteState.repoName, path);
             currentNoteState.currentPath = path;
+            document.getElementById('note-reader-title').textContent = getNoteFileTitle(path);
 
             try {
                 const markdown = await fetchMarkdown(owner, repo, branch, path);
@@ -1274,7 +1367,7 @@
 
             enterNoteSidebar(title);
             showPageSection('note-reader');
-            document.getElementById('note-reader-title').textContent = title;
+            document.getElementById('note-reader-title').textContent = '加载中...';
             document.getElementById('note-github-link').href = repo.html_url;
             document.getElementById('note-content').innerHTML = '<p class="note-loading">正在加载笔记目录...</p>';
 
