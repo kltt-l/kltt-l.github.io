@@ -216,8 +216,29 @@
         }
 
         body.note-reading .sidebar.collapsed {
-            width: 260px;
-            padding: 30px 20px;
+            width: 70px;
+            padding: 30px 10px;
+        }
+
+        body.note-reading .sidebar.collapsed #note-sidebar-title,
+        body.note-reading .sidebar.collapsed .note-back-link .menu-text {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+        }
+
+        body.note-reading .sidebar.collapsed .note-back-link {
+            justify-content: center;
+            padding: 12px 10px;
+        }
+
+        body.note-reading .sidebar.collapsed .note-back-link .menu-icon {
+            margin-right: 0;
+        }
+
+        body.note-reading .sidebar.collapsed .sidebar-note-toc {
+            display: none;
         }
 
         .note-reader-header {
@@ -319,6 +340,11 @@
 
         .markdown-body a:hover {
             text-decoration: underline;
+        }
+
+        .markdown-body strong {
+            font-weight: 700;
+            color: #1a202c;
         }
 
         .markdown-body .katex-display {
@@ -893,12 +919,13 @@
         }
 
         // 切换侧边栏折叠状态
-        const toggleBtn = document.querySelector('.toggle-btn');
         const sidebar = document.querySelector('.sidebar');
         const expandBtn = document.querySelector('.expand-btn');
-        
-        toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
+
+        sidebar.addEventListener('click', (event) => {
+            if (event.target.closest('.toggle-btn')) {
+                sidebar.classList.toggle('collapsed');
+            }
         });
         
         expandBtn.addEventListener('click', () => {
@@ -966,20 +993,26 @@
             const repos = [];
             let page = 1;
 
-            while (page <= 10) {
-                const response = await fetch(
-                    `https://api.github.com/search/repositories?q=contributor:${username}&sort=updated&per_page=100&page=${page}`
-                );
-                if (!response.ok) {
-                    throw new Error(`GitHub Search API 请求失败 (${response.status})`);
+            try {
+                while (page <= 10) {
+                    const response = await fetch(
+                        `https://api.github.com/search/repositories?q=contributor:${username}&sort=updated&per_page=100&page=${page}`
+                    );
+                    if (!response.ok) {
+                        console.warn(`GitHub Search API 不可用 (${response.status})，已跳过 contributor 搜索`);
+                        return [];
+                    }
+
+                    const data = await response.json();
+                    if (!data.items || data.items.length === 0) break;
+
+                    repos.push(...data.items);
+                    if (data.items.length < 100) break;
+                    page++;
                 }
-
-                const data = await response.json();
-                if (!data.items || data.items.length === 0) break;
-
-                repos.push(...data.items);
-                if (data.items.length < 100) break;
-                page++;
+            } catch (error) {
+                console.warn('GitHub Search API 请求失败，已跳过 contributor 搜索', error);
+                return [];
             }
 
             return repos;
@@ -998,10 +1031,8 @@
         }
 
         async function fetchAllRepos(username) {
-            const [userRepos, contributedRepos] = await Promise.all([
-                fetchUserRepos(username),
-                fetchContributedRepos(username),
-            ]);
+            const userRepos = await fetchUserRepos(username);
+            const contributedRepos = await fetchContributedRepos(username);
             return dedupeRepos([...userRepos, ...contributedRepos]);
         }
 
@@ -1076,6 +1107,8 @@
 
         let noteReposCache = [];
         let currentNoteState = null;
+        let noteLoadSeq = 0;
+        let noteFetchController = null;
 
         marked.setOptions({
             breaks: true,
@@ -1138,6 +1171,19 @@
                 return `[${target}](${notePath})`;
             });
 
+            return content;
+        }
+
+        function preprocessBold(content) {
+            const saved = [];
+
+            content = content.replace(/(`+)([\s\S]*?)\1/g, (match) => {
+                saved.push(match);
+                return `\x00CODE${saved.length - 1}\x00`;
+            });
+
+            content = content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
+            content = content.replace(/\x00CODE(\d+)\x00/g, (_, index) => saved[index]);
             return content;
         }
 
@@ -1258,12 +1304,17 @@
             const mathStore = [];
             content = preprocessObsidian(content, filePath);
             content = injectMathPlaceholders(content, mathStore);
+            content = preprocessBold(content);
 
             const wrapper = document.createElement('div');
             wrapper.innerHTML = marked.parse(content);
             postProcessNoteDom(wrapper, owner, repo, branch, filePath);
             renderMathPlaceholders(wrapper, mathStore);
             return wrapper.innerHTML;
+        }
+
+        function isReadmePath(path) {
+            return /^readme\.md$/i.test(path.split('/').pop());
         }
 
         async function fetchRepoMdFiles(owner, repo, branch) {
@@ -1275,12 +1326,12 @@
             }
             const data = await response.json();
             return data.tree
-                .filter(item => item.type === 'blob' && /\.md$/i.test(item.path))
+                .filter(item => item.type === 'blob' && /\.md$/i.test(item.path) && !isReadmePath(item.path))
                 .map(item => item.path);
         }
 
-        async function fetchMarkdown(owner, repo, branch, path) {
-            const response = await fetch(getRawUrl(owner, repo, branch, path));
+        async function fetchMarkdown(owner, repo, branch, path, signal) {
+            const response = await fetch(getRawUrl(owner, repo, branch, path), { signal });
             if (!response.ok) {
                 throw new Error(`无法加载 ${path}`);
             }
@@ -1304,6 +1355,8 @@
         }
 
         function exitNoteReader() {
+            noteLoadSeq++;
+            if (noteFetchController) noteFetchController.abort();
             document.getElementById('sidebar-nav').classList.remove('hidden');
             document.getElementById('sidebar-note-toc').classList.add('hidden');
             document.body.classList.remove('note-reading');
@@ -1333,6 +1386,12 @@
 
         async function loadNoteFile(path) {
             if (!currentNoteState) return;
+            if (path === currentNoteState.currentPath) return;
+
+            const loadSeq = ++noteLoadSeq;
+            if (noteFetchController) noteFetchController.abort();
+            noteFetchController = new AbortController();
+            const { signal } = noteFetchController;
 
             const { owner, repo, branch } = currentNoteState;
             const contentEl = document.getElementById('note-content');
@@ -1343,7 +1402,9 @@
             document.getElementById('note-reader-title').textContent = getNoteFileTitle(path);
 
             try {
-                const markdown = await fetchMarkdown(owner, repo, branch, path);
+                const markdown = await fetchMarkdown(owner, repo, branch, path, signal);
+                if (loadSeq !== noteLoadSeq) return;
+
                 contentEl.innerHTML = renderMarkdown(markdown, owner, repo, branch, path);
                 contentEl.querySelectorAll('a[data-note-path]').forEach(link => {
                     link.addEventListener('click', (e) => {
@@ -1356,6 +1417,7 @@
                 });
                 window.scrollTo(0, 0);
             } catch (error) {
+                if (error.name === 'AbortError' || loadSeq !== noteLoadSeq) return;
                 contentEl.innerHTML = `<p style="color: #e74c3c;">${error.message}</p>`;
             }
         }
@@ -1389,13 +1451,11 @@
                 tocList.innerHTML = '';
                 tocList.appendChild(renderTocNode(buildMdTree(mdFiles)));
 
-                currentNoteState = { owner, repo: repoName, branch, repoName, mdFiles };
+                currentNoteState = { owner, repo: repoName, branch, repoName, mdFiles, currentPath: null };
 
                 const defaultPath = initialPath && mdFiles.includes(initialPath)
                     ? initialPath
-                    : mdFiles.find(path => /^readme\.md$/i.test(path))
-                        || mdFiles.find(path => !/^readme\.md$/i.test(path))
-                        || mdFiles[0];
+                    : mdFiles[0];
 
                 await loadNoteFile(defaultPath);
             } catch (error) {
@@ -1467,10 +1527,6 @@
                 showPageSection('blog');
                 document.querySelectorAll('.menu-link').forEach(link => link.classList.remove('active'));
                 document.querySelector('.menu-link[href="#blog"]').classList.add('active');
-            });
-
-            document.getElementById('note-toggle-btn').addEventListener('click', () => {
-                sidebar.classList.toggle('collapsed');
             });
 
             // 获取所有导航链接
