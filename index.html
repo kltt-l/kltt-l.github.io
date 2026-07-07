@@ -1092,11 +1092,30 @@
         }
 
         function normalizeRepoPath(path) {
+            const withSlashes = path.replace(/%2F/gi, '/');
             try {
-                return path.split('/').map(part => decodeURIComponent(part)).join('/');
+                return withSlashes.split('/').map(part => decodeURIComponent(part)).join('/');
             } catch {
-                return path;
+                return withSlashes;
             }
+        }
+
+        function escapeAttr(value) {
+            return value
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;');
+        }
+
+        function getImageRepoPath(filePath, target) {
+            const mdDir = filePath.includes('/') ? filePath.slice(0, filePath.lastIndexOf('/')) : '';
+            const normalized = normalizeRepoPath(target.trim());
+
+            if (normalized.includes('/')) {
+                return normalized;
+            }
+
+            return mdDir ? `${mdDir}/attachments/${normalized}` : `attachments/${normalized}`;
         }
 
         function resolveImagePath(filePath, href) {
@@ -1104,6 +1123,10 @@
 
             const normalized = normalizeRepoPath(href);
             const mdDir = filePath.includes('/') ? filePath.slice(0, filePath.lastIndexOf('/')) : '';
+
+            if (mdDir && normalized.startsWith(`${mdDir}/`)) {
+                return normalized;
+            }
 
             if (normalized.startsWith('attachments/')) {
                 return mdDir ? `${mdDir}/${normalized}` : normalized;
@@ -1117,22 +1140,40 @@
         }
 
         function applyImageSources(img, urls) {
+            const uniqueUrls = [...new Set(urls.filter(Boolean))];
+            if (uniqueUrls.length === 0) return;
+
             let index = 0;
             img.onerror = () => {
                 index += 1;
-                if (index < urls.length) {
-                    img.src = urls[index];
+                if (index < uniqueUrls.length) {
+                    img.src = uniqueUrls[index];
                 } else {
                     img.onerror = null;
                 }
             };
             img.referrerPolicy = 'no-referrer';
             img.loading = 'lazy';
-            img.src = urls[0];
+            img.src = uniqueUrls[0];
+        }
+
+        function buildImageTag(owner, repo, branch, filePath, target) {
+            const imagePath = getImageRepoPath(filePath, target);
+            const urls = getNoteAssetUrls(owner, repo, branch, imagePath);
+            return `<img class="note-image" alt="${escapeAttr(target.trim())}" src="${escapeAttr(urls[0])}" data-urls="${escapeAttr(JSON.stringify(urls))}">`;
         }
 
         function postProcessNoteDom(wrapper, owner, repo, branch, filePath) {
             wrapper.querySelectorAll('img').forEach(img => {
+                if (img.dataset.urls) {
+                    try {
+                        applyImageSources(img, JSON.parse(img.dataset.urls));
+                    } catch {
+                        // ignore invalid data-urls
+                    }
+                    return;
+                }
+
                 const href = img.getAttribute('src');
                 if (!href) return;
                 if (/^https?:\/\//i.test(href)) {
@@ -1140,6 +1181,7 @@
                     img.loading = 'lazy';
                     return;
                 }
+
                 const imagePath = resolveImagePath(filePath, href);
                 applyImageSources(img, getNoteAssetUrls(owner, repo, branch, imagePath));
             });
@@ -1159,17 +1201,11 @@
             });
         }
 
-        function preprocessObsidian(content, filePath) {
-            const mdDir = filePath.includes('/') ? filePath.slice(0, filePath.lastIndexOf('/')) : '';
-
+        function preprocessObsidian(content, filePath, owner, repo, branch) {
             content = content.replace(/!\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/g, (match, target) => {
                 target = target.trim();
                 if (!/\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(target)) return match;
-
-                const imagePath = target.includes('/')
-                    ? resolveNotePath(filePath, target)
-                    : `${mdDir}/attachments/${target}`;
-                return `![${target}](${encodePath(imagePath)})`;
+                return buildImageTag(owner, repo, branch, filePath, target);
             });
 
             content = content.replace(/(?<!!)\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/g, (match, target) => {
@@ -1347,7 +1383,7 @@
 
         function renderMarkdown(content, owner, repo, branch, filePath) {
             const mathStore = [];
-            content = preprocessObsidian(content, filePath);
+            content = preprocessObsidian(content, filePath, owner, repo, branch);
             content = injectMathPlaceholders(content, mathStore);
             content = preprocessBold(content);
 
