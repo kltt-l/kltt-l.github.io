@@ -52,6 +52,20 @@ jobs:
             owner: { login: .owner.login }
           }]' > data/repos.json
 
+          jq -c '.[] | select(.name | test("^Notes?";"i")) | .full_name + " " + .default_branch' data/repos.json | while read -r FULL BRANCH; do
+            OWNER="${FULL%%/*}"
+            NAME="${FULL#*/}"
+            MD_FILES=$(curl -sf \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${FULL}/git/trees/${BRANCH}?recursive=1" \
+              | jq '[.tree[] | select(.type == "blob") | .path | select(test("\\.md$";"i")) | select(test("(^|/)README\\.md$";"i") | not)]')
+            jq --arg name "$NAME" --argjson files "$MD_FILES" \
+              'map(if .name == $name then . + {md_files: $files} else . end)' \
+              data/repos.json > data/repos.tmp.json
+            mv data/repos.tmp.json data/repos.json
+          done
+
       - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"

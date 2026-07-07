@@ -1074,6 +1074,7 @@
         let currentNoteState = null;
         let noteLoadSeq = 0;
         let noteFetchController = null;
+        let noteReaderPromise = null;
 
         marked.setOptions({
             breaks: true,
@@ -1187,8 +1188,42 @@
             return path.split('/').map(encodeURIComponent).join('/');
         }
 
-        function getRawUrl(owner, repo, branch, path) {
+        function getJsDelivrUrl(owner, repo, branch, path) {
+            return `https://cdn.jsdelivr.net/gh/${owner}/${repo}@${branch}/${encodePath(path)}`;
+        }
+
+        function getRawGithubUrl(owner, repo, branch, path) {
             return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${encodePath(path)}`;
+        }
+
+        function getNoteAssetUrls(owner, repo, branch, path) {
+            return [
+                getJsDelivrUrl(owner, repo, branch, path),
+                getRawGithubUrl(owner, repo, branch, path),
+            ];
+        }
+
+        async function fetchTextFromUrls(urls, signal) {
+            let lastError = new Error('网络请求失败');
+
+            for (const url of urls) {
+                try {
+                    const response = await fetch(url, { signal });
+                    if (response.ok) {
+                        return await response.text();
+                    }
+                    lastError = new Error(`HTTP ${response.status}`);
+                } catch (error) {
+                    if (error.name === 'AbortError') throw error;
+                    lastError = error;
+                }
+            }
+
+            throw lastError;
+        }
+
+        function getRawUrl(owner, repo, branch, path) {
+            return getJsDelivrUrl(owner, repo, branch, path);
         }
 
         function resolveNotePath(basePath, targetPath) {
@@ -1282,25 +1317,34 @@
             return /^readme\.md$/i.test(path.split('/').pop());
         }
 
-        async function fetchRepoMdFiles(owner, repo, branch) {
-            const response = await fetch(
-                `https://data.jsdelivr.com/v1/package/gh/${owner}/${repo}@${branch}/flat`
-            );
-            if (!response.ok) {
-                throw new Error(`无法读取仓库目录 (${response.status})`);
+        async function fetchRepoMdFiles(owner, repo, branch, cachedFiles) {
+            if (Array.isArray(cachedFiles) && cachedFiles.length > 0) {
+                return cachedFiles.filter(path => !isReadmePath(path));
             }
-            const data = await response.json();
-            return (data.files || [])
-                .map(item => item.name.replace(/^\//, ''))
-                .filter(path => /\.md$/i.test(path) && !isReadmePath(path));
+
+            try {
+                const response = await fetch(
+                    `https://data.jsdelivr.com/v1/package/gh/${owner}/${repo}@${branch}/flat`
+                );
+                if (!response.ok) {
+                    throw new Error(`无法读取仓库目录 (${response.status})`);
+                }
+                const data = await response.json();
+                return (data.files || [])
+                    .map(item => item.name.replace(/^\//, ''))
+                    .filter(path => /\.md$/i.test(path) && !isReadmePath(path));
+            } catch (error) {
+                throw new Error(`无法读取笔记目录：${error.message || '网络错误'}`);
+            }
         }
 
         async function fetchMarkdown(owner, repo, branch, path, signal) {
-            const response = await fetch(getRawUrl(owner, repo, branch, path), { signal });
-            if (!response.ok) {
-                throw new Error(`无法加载 ${path}`);
+            try {
+                return await fetchTextFromUrls(getNoteAssetUrls(owner, repo, branch, path), signal);
+            } catch (error) {
+                if (error.name === 'AbortError') throw error;
+                throw new Error(`无法加载 ${path}：${error.message || '网络错误'}`);
             }
-            return response.text();
         }
 
         function showPageSection(sectionId) {
@@ -1363,13 +1407,13 @@
             contentEl.innerHTML = '<p class="note-loading">正在加载笔记...</p>';
             updateTocActive(path);
             setNoteHash(currentNoteState.repoName, path);
-            currentNoteState.currentPath = path;
             document.getElementById('note-reader-title').textContent = getNoteFileTitle(path);
 
             try {
                 const markdown = await fetchMarkdown(owner, repo, branch, path, signal);
                 if (loadSeq !== noteLoadSeq) return;
 
+                currentNoteState.currentPath = path;
                 contentEl.innerHTML = renderMarkdown(markdown, owner, repo, branch, path);
                 contentEl.querySelectorAll('a[data-note-path]').forEach(link => {
                     link.addEventListener('click', (e) => {
@@ -1383,11 +1427,17 @@
                 window.scrollTo(0, 0);
             } catch (error) {
                 if (error.name === 'AbortError' || loadSeq !== noteLoadSeq) return;
-                contentEl.innerHTML = `<p style="color: #e74c3c;">${error.message}</p>`;
+                const message = error.message === 'Failed to fetch'
+                    ? '网络连接失败，请稍后重试'
+                    : error.message;
+                contentEl.innerHTML = `<p style="color: #e74c3c;">${message}</p>`;
             }
         }
 
         async function openNoteReader(repo, initialPath = null) {
+            if (noteReaderPromise) return noteReaderPromise;
+
+            noteReaderPromise = (async () => {
             const owner = repo.owner.login;
             const repoName = repo.name;
             const title = formatNoteTitle(repoName);
@@ -1403,7 +1453,7 @@
 
             try {
                 const branch = repo.default_branch || 'main';
-                const mdFiles = await fetchRepoMdFiles(owner, repoName, branch);
+                const mdFiles = await fetchRepoMdFiles(owner, repoName, branch, repo.md_files);
 
                 if (mdFiles.length === 0) {
                     throw new Error('该仓库中没有找到 Markdown 笔记');
@@ -1421,7 +1471,17 @@
 
                 await loadNoteFile(defaultPath);
             } catch (error) {
-                document.getElementById('note-content').innerHTML = `<p style="color: #e74c3c;">${error.message}</p>`;
+                const message = error.message === 'Failed to fetch'
+                    ? '网络连接失败，无法加载笔记目录'
+                    : error.message;
+                document.getElementById('note-content').innerHTML = `<p style="color: #e74c3c;">${message}</p>`;
+            }
+            })();
+
+            try {
+                await noteReaderPromise;
+            } finally {
+                noteReaderPromise = null;
             }
         }
 
