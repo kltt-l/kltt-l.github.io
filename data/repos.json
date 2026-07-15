@@ -5,7 +5,19 @@
     "html_url": "https://github.com/kltt-l/kltt-l.github.io",
     "description": null,
     "language": "HTML",
-    "updated_at": "2026-07-07T13:29:03Z",
+    "updated_at": "2026-07-07T16:06:27Z",
+    "default_branch": "main",
+    "owner": {
+      "login": "kltt-l"
+    }
+  },
+  {
+    "name": "Notes-Introduction-to-AI-PKU-2025Spring",
+    "full_name": "kltt-l/Notes-Introduction-to-AI-PKU-2025Spring",
+    "html_url": "https://github.com/kltt-l/Notes-Introduction-to-AI-PKU-2025Spring",
+    "description": null,
+    "language": "Python",
+    "updated_at": "2026-07-07T15:46:51Z",
     "default_branch": "main",
     "owner": {
       "login": "kltt-l"
@@ -24,44 +36,6 @@
     }
   },
   {
-    "name": "Notes-Introduction-to-AI-PKU-2025Spring",
-    "full_name": "kltt-l/Notes-Introduction-to-AI-PKU-2025Spring",
-    "html_url": "https://github.com/kltt-l/Notes-Introduction-to-AI-PKU-2025Spring",
-    "description": null,
-    "language": "Python",
-    "updated_at": "2026-07-07T12:20:13Z",
-    "default_branch": "main",
-    "owner": {
-      "login": "kltt-l"
-    },
-    "md_files": [
-      "人工智能引论/1 人工智能概览.md",
-      "人工智能引论/2 数学基础.md",
-      "人工智能引论/3 python基础.md",
-      "人工智能引论/4 搜索概述.md",
-      "人工智能引论/5 搜索：UCS和A※.md",
-      "人工智能引论/6 搜索：逻辑和CSP.md",
-      "人工智能引论/7 对抗搜索.md",
-      "人工智能引论/8 蒙特卡洛搜索.md",
-      "人工智能引论/9 机器学习基础和线性回归.md",
-      "人工智能引论/10 逻辑回归、多分类与正则化.md",
-      "人工智能引论/11 决策树与随机森林.md",
-      "人工智能引论/12 神经网络与反向传播.md",
-      "人工智能引论/13 计算机视觉-图像分类与卷积神经网络.md",
-      "人工智能引论/14 计算机视觉-三维重建.md",
-      "人工智能引论/15 自然语言处理-句法分析与分词.md",
-      "人工智能引论/16 自然语言处理-统计语言模型与词表示.md",
-      "人工智能引论/17 自然语言处理-RNN和Transformer.md",
-      "人工智能引论/18 知识图谱.md",
-      "人工智能引论/19 智能机器人.md",
-      "人工智能引论/20 强化学习.md",
-      "人工智能引论/21 多智能体与博弈论.md",
-      "人工智能引论/22 仿真.md",
-      "人工智能引论/期中复习.md",
-      "人工智能引论/期末复习.md"
-    ]
-  },
-  {
     "name": "FractalOctGen",
     "full_name": "kltt-l/FractalOctGen",
     "html_url": "https://github.com/kltt-l/FractalOctGen",
@@ -71,18 +45,6 @@
     "default_branch": "main",
     "owner": {
       "login": "kltt-l"
-    }
-  },
-  {
-    "name": "Q_le_tt_DeskPet",
-    "full_name": "lh314-pku/Q_le_tt_DeskPet",
-    "html_url": "https://github.com/lh314-pku/Q_le_tt_DeskPet",
-    "description": "程设大作业",
-    "language": "Python",
-    "updated_at": "2025-06-28T10:31:43Z",
-    "default_branch": "main",
-    "owner": {
-      "login": "lh314-pku"
     }
   }
 ]
