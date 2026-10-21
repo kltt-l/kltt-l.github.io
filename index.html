@@ -194,15 +194,6 @@
         function createProjectCard(repo) {
             const card = document.createElement('article');
             card.className = 'project-card';
-            if (repo.name === 'FractalOctGen') {
-                const image = document.createElement('img');
-                image.src = 'images/fractal-octree.svg';
-                image.alt = tr('分形与八叉树的几何示意图', 'Geometric illustration of a fractal octree');
-                image.className = 'project-thumbnail';
-                image.width = 170;
-                image.height = 120;
-                card.appendChild(image);
-            }
             const content = document.createElement('div');
             content.className = 'project-content';
             const heading = document.createElement('h3');
@@ -216,13 +207,10 @@
             summary.textContent = repo.name === 'FractalOctGen'
                 ? tr('几何计算前沿课程期末项目。', 'Final project for Frontiers of Geometric Computation.')
                 : (repo.description || repo.name);
-            const meta = document.createElement('p');
-            meta.className = 'project-meta';
-            meta.textContent = [repo.language, tr('个人项目', 'Personal project')].filter(Boolean).join(' · ');
             const code = link.cloneNode(false);
             code.className = 'text-link';
             code.textContent = 'Code ↗';
-            content.append(heading, meta, summary, code);
+            content.append(heading, summary, code);
             card.appendChild(content);
             return card;
         }
