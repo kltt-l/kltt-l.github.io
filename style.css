@@ -190,3 +190,8 @@ time { white-space:nowrap; font-size:15px; color:var(--muted); }
  time { font-size:14px; }
  .sidebar { background:var(--paper); }
 }
+
+@media(max-width:680px) {
+ .profile-name { display:flex; align-items:center; align-content:center; flex-wrap:wrap; column-gap:10px; min-height:80px; }
+ .profile-name .name-secondary { margin-left:0; }
+}
