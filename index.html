@@ -3,901 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>快乐堂堂的个人主页</title>
+    <title>李睿钦 | Ruiqin Li</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            transition: all 0.3s ease;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
-            color: #333;
-            line-height: 1.6;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        
-        .container {
-            display: flex;
-            min-height: 100vh;
-        }
-        
-        /* 侧边栏样式 */
-        .sidebar {
-            width: 260px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 30px 20px;
-            border-right: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
-            z-index: 100;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
-        }
-        
-        /* 折叠状态下的侧边栏 */
-        .sidebar.collapsed {
-            width: 70px;
-            padding: 30px 10px;
-        }
-        
-        .sidebar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            min-width: 0;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        }
-        
-        .sidebar-title {
-            flex: 1;
-            min-width: 0;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #2c3e50;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            opacity: 1;
-            transition: opacity 0.3s ease;
-        }
-
-        #note-sidebar-title {
-            font-size: 1.15rem;
-        }
-        
-        .sidebar.collapsed .sidebar-title {
-            opacity: 0;
-            width: 0;
-        }
-        
-        .toggle-btn {
-            flex-shrink: 0;
-            background: #3498db;
-            color: white;
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 3px 10px rgba(52, 152, 219, 0.3);
-            transition: all 0.3s ease;
-        }
-        
-        .toggle-btn:hover {
-            background: #2980b9;
-            transform: scale(1.05);
-        }
-        
-        .sidebar.collapsed .toggle-btn {
-            transform: rotate(180deg);
-        }
-        
-        .sidebar-menu {
-            list-style: none;
-        }
-        
-        .menu-item {
-            margin-bottom: 12px;
-            overflow: hidden;
-        }
-        
-        .menu-link {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            color: #2c3e50;
-            font-size: 1.05rem;
-            padding: 12px 15px;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
-        
-        .menu-link:hover {
-            background: rgba(52, 152, 219, 0.1);
-            color: #2980b9;
-        }
-        
-        .menu-link.active {
-            background: rgba(52, 152, 219, 0.15);
-            color: #2980b9;
-            font-weight: 500;
-        }
-        
-        .menu-icon {
-            font-size: 1.2rem;
-            min-width: 30px;
-            display: flex;
-            justify-content: center;
-            margin-right: 15px;
-        }
-        
-        .menu-text {
-            white-space: nowrap;
-            opacity: 1;
-            transition: opacity 0.3s ease;
-        }
-        
-        .sidebar.collapsed .menu-text {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .sidebar-panel {
-            display: block;
-        }
-
-        .sidebar-panel.hidden {
-            display: none;
-        }
-
-        .sidebar-note-toc {
-            max-height: calc(100vh - 120px);
-            overflow-y: auto;
-        }
-
-        .toc-folder {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #718096;
-            padding: 8px 15px 4px;
-            margin-top: 4px;
-        }
-
-        .toc-link {
-            display: block;
-            text-decoration: none;
-            color: #2c3e50;
-            font-size: 0.92rem;
-            padding: 8px 15px;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-            line-height: 1.4;
-        }
-
-        .toc-link:hover {
-            background: rgba(52, 152, 219, 0.1);
-            color: #2980b9;
-        }
-
-        .toc-link.active {
-            background: rgba(52, 152, 219, 0.15);
-            color: #2980b9;
-            font-weight: 500;
-        }
-
-        .toc-link.nested {
-            padding-left: 28px;
-            font-size: 0.88rem;
-        }
-
-        .note-back-link {
-            margin-bottom: 16px;
-        }
-
-        body.note-reading .profile-header {
-            display: none;
-        }
-
-        body.note-reading .sidebar.collapsed {
-            width: 70px;
-            padding: 30px 10px;
-        }
-
-        body.note-reading .sidebar.collapsed #note-sidebar-title,
-        body.note-reading .sidebar.collapsed .note-back-link .menu-text {
-            opacity: 0;
-            width: 0;
-            height: 0;
-            overflow: hidden;
-        }
-
-        body.note-reading .sidebar.collapsed .note-back-link {
-            justify-content: center;
-            padding: 12px 10px;
-        }
-
-        body.note-reading .sidebar.collapsed .note-back-link .menu-icon {
-            margin-right: 0;
-        }
-
-        body.note-reading .sidebar.collapsed .sidebar-note-toc {
-            display: none;
-        }
-
-        .note-reader-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .markdown-body {
-            line-height: 1.75;
-            color: #2d3748;
-            font-size: 1rem;
-        }
-
-        .markdown-body h1,
-        .markdown-body h2,
-        .markdown-body h3,
-        .markdown-body h4 {
-            color: #2c3e50;
-            margin: 1.6em 0 0.8em;
-            font-weight: 700;
-            line-height: 1.3;
-        }
-
-        .markdown-body h1 { font-size: 2rem; border-bottom: 2px solid #edf2f7; padding-bottom: 0.3em; }
-        .markdown-body h2 { font-size: 1.6rem; border-bottom: 1px solid #edf2f7; padding-bottom: 0.25em; }
-        .markdown-body h3 { font-size: 1.3rem; }
-        .markdown-body h4 { font-size: 1.1rem; }
-
-        .markdown-body p,
-        .markdown-body ul,
-        .markdown-body ol,
-        .markdown-body blockquote,
-        .markdown-body pre {
-            margin-bottom: 1em;
-        }
-
-        .markdown-body ul,
-        .markdown-body ol {
-            padding-left: 1.6em;
-        }
-
-        .markdown-body blockquote {
-            border-left: 4px solid #3498db;
-            padding: 0.5em 1em;
-            background: #f7fafc;
-            color: #4a5568;
-        }
-
-        .markdown-body code {
-            background: #edf2f7;
-            padding: 0.15em 0.4em;
-            border-radius: 4px;
-            font-size: 0.9em;
-            font-family: Consolas, Monaco, monospace;
-        }
-
-        .markdown-body pre {
-            background: #f6f8fa;
-            border-radius: 8px;
-            padding: 16px;
-            overflow-x: auto;
-            border: 1px solid #e2e8f0;
-        }
-
-        .markdown-body pre code {
-            background: none;
-            padding: 0;
-        }
-
-        .markdown-body img {
-            max-width: 100%;
-            border-radius: 8px;
-        }
-
-        .markdown-body table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 1em;
-        }
-
-        .markdown-body th,
-        .markdown-body td {
-            border: 1px solid #e2e8f0;
-            padding: 8px 12px;
-        }
-
-        .markdown-body th {
-            background: #f7fafc;
-        }
-
-        .markdown-body a {
-            color: #3498db;
-            text-decoration: none;
-        }
-
-        .markdown-body a:hover {
-            text-decoration: underline;
-        }
-
-        .markdown-body strong {
-            font-weight: 700;
-            color: #1a202c;
-        }
-
-        .markdown-body .katex-display {
-            margin: 1em 0;
-            overflow-x: auto;
-            overflow-y: hidden;
-        }
-
-        .note-loading {
-            color: #718096;
-            text-align: center;
-            padding: 40px 0;
-        }
-        
-        /* 折叠状态下的展开按钮 */
-        .expand-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: #3498db;
-            color: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-            z-index: 90;
-        }
-        
-        .sidebar.collapsed + .expand-btn {
-            display: flex;
-        }
-        
-        /* 主体内容区域 */
-        .main-content {
-            flex: 1;
-            padding: 40px;
-            background-color: #f9fafb;
-            position: relative;
-        }
-        
-        /* 页面内容区域 */
-        .page-section {
-            display: none;
-            padding: 30px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
-            margin-bottom: 30px;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .page-section.active {
-            display: block;
-        }
-        
-        /* 头部区域 */
-        .header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 40px;
-        }
-        
-        .avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 5px solid #f8f9fa;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            margin-right: 30px;
-        }
-        
-        .intro h1 {
-            font-size: 2.4rem;
-            margin-bottom: 10px;
-            color: #2c3e50;
-            font-weight: 700;
-        }
-        
-        .intro p {
-            font-size: 1.15rem;
-            color: #4a5568;
-            max-width: 700px;
-            line-height: 1.8;
-        }
-        
-        .tag {
-            display: inline-block;
-            background: rgba(52, 152, 219, 0.1);
-            color: #2980b9;
-            padding: 6px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            margin-top: 15px;
-            font-weight: 500;
-        }
-        
-        /* 项目区域 */
-        .section-title {
-            font-size: 1.8rem;
-            margin-bottom: 30px;
-            color: #2c3e50;
-            font-weight: 700;
-            position: relative;
-            padding-bottom: 15px;
-        }
-        
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 60px;
-            height: 4px;
-            background: linear-gradient(90deg, #3498db, #2ecc71);
-            border-radius: 2px;
-        }
-        
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 50px;
-        }
-        
-        .project-card {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 1px solid #edf2f7;
-        }
-        
-        .project-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-        }
-        
-        .project-image {
-            height: 180px;
-            background: linear-gradient(135deg, #3498db, #2ecc71);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 2.5rem;
-        }
-        
-        .project-content {
-            padding: 25px;
-        }
-        
-        .project-card h3 {
-            margin-bottom: 15px;
-            color: #2c3e50;
-            font-size: 1.4rem;
-        }
-        
-        .project-card p {
-            color: #4a5568;
-            margin-bottom: 20px;
-            font-size: 1rem;
-        }
-        
-        .project-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .project-tags {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .project-tag {
-            background: rgba(52, 152, 219, 0.1);
-            color: #3498db;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-        }
-        
-        .project-link {
-            display: inline-flex;
-            align-items: center;
-            background: #3498db;
-            color: white;
-            padding: 8px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-        
-        .project-link i {
-            margin-left: 8px;
-            font-size: 0.9rem;
-        }
-        
-        .project-link:hover {
-            background: #2980b9;
-        }
-        
-        /* 页脚 */
-        .footer {
-            text-align: center;
-            padding: 30px;
-            color: #7f8c8d;
-            border-top: 1px solid #ecf0f1;
-            margin-top: 50px;
-        }
-        
-        /* 响应式设计 */
-        @media (max-width: 992px) {
-            .sidebar {
-                position: fixed;
-                left: 0;
-                top: 0;
-                height: 100vh;
-                transform: translateX(0);
-                z-index: 1000;
-            }
-            
-            .sidebar.collapsed {
-                transform: translateX(-100%);
-                width: 260px;
-            }
-            
-            .expand-btn {
-                display: flex;
-            }
-            
-            .sidebar.collapsed + .expand-btn {
-                display: flex;
-            }
-            
-            .main-content {
-                margin-left: 0;
-                padding: 20px;
-            }
-            
-            .header {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .avatar {
-                margin-right: 0;
-                margin-bottom: 25px;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .projects-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .intro h1 {
-                font-size: 2rem;
-            }
-            
-            .intro p {
-                font-size: 1rem;
-            }
-        }
-    </style>
+    <meta name="description" content="李睿钦，北京大学智能科学与技术本科生。个人项目、学习记录与课程笔记。">
+    <script>
+        try {
+            const savedTheme = localStorage.getItem('homepage-theme');
+            document.documentElement.dataset.theme = savedTheme === 'dark' || savedTheme === 'light'
+                ? savedTheme : (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        } catch { document.documentElement.dataset.theme = 'light'; }
+    </script>
+    <link rel="stylesheet" href="style.css?v=20261021-nav-name">
 </head>
 <body>
+    <div class="appearance-controls" aria-label="语言与外观 / Language and appearance">
+        <button type="button" id="language-toggle" aria-label="Switch to English" title="Switch to English">EN</button>
+        <button type="button" id="theme-toggle" aria-label="切换到黑暗模式" title="切换到黑暗模式"><span aria-hidden="true">☾</span></button>
+    </div>
+    <a class="skip-link" href="#home" data-en="Skip to content">跳转到正文</a>
     <div class="container">
-        <!-- 左侧边栏 -->
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-panel" id="sidebar-nav">
-                <div class="sidebar-header">
-                    <h2 class="sidebar-title">导航菜单</h2>
-                    <button class="toggle-btn">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
+        <aside class="sidebar" id="sidebar">
+            <nav id="sidebar-nav" aria-label="主导航">
+                <span class="site-name" data-en="Ruiqin Li">李睿钦</span>
+                <div class="sidebar-menu">
+                    <a class="menu-link" href="#publications" data-en="Publications">论文</a>
+                    <a class="menu-link" href="#awards" data-en="Awards">荣誉</a>
+                    <a class="menu-link" href="#blog" data-en="Course Projects &amp; Notes">课程项目与笔记</a>
+                    <a class="menu-link" href="#about" data-en="Education">教育经历</a>
                 </div>
-                
-                <ul class="sidebar-menu">
-                    <li class="menu-item">
-                        <a href="#home" class="menu-link active">
-                            <span class="menu-icon"><i class="fas fa-home"></i></span>
-                            <span class="menu-text">首页</span>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="#about" class="menu-link">
-                            <span class="menu-icon"><i class="fas fa-user"></i></span>
-                            <span class="menu-text">关于我</span>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="#projects" class="menu-link">
-                            <span class="menu-icon"><i class="fas fa-code"></i></span>
-                            <span class="menu-text">我的项目</span>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="#blog" class="menu-link">
-                            <span class="menu-icon"><i class="fas fa-blog"></i></span>
-                            <span class="menu-text">课程笔记</span>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="#contact" class="menu-link">
-                            <span class="menu-icon"><i class="fas fa-envelope"></i></span>
-                            <span class="menu-text">联系方式</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
+            </nav>
             <div class="sidebar-panel hidden" id="sidebar-note-toc">
                 <div class="sidebar-header">
-                    <h2 class="sidebar-title" id="note-sidebar-title">笔记目录</h2>
-                    <button class="toggle-btn" id="note-toggle-btn">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
+                    <h2 id="note-sidebar-title">笔记目录</h2>
+                    <button class="toggle-btn" aria-label="收起笔记目录" data-en="Close ×">收起 ×</button>
                 </div>
-                <a href="#blog" class="menu-link note-back-link" id="note-back-link">
-                    <span class="menu-icon"><i class="fas fa-arrow-left"></i></span>
-                    <span class="menu-text">返回笔记列表</span>
-                </a>
+                <a href="#blog" class="note-back-link" id="note-back-link" data-en="← Back to course projects &amp; notes">← 返回课程项目与笔记</a>
                 <div class="sidebar-note-toc" id="note-toc-list"></div>
             </div>
-        </div>
-        
-        <!-- 展开按钮（在折叠状态下显示） -->
-        <button class="expand-btn">
-            <i class="fas fa-bars"></i>
-        </button>
-        
-        <!-- 主体内容 -->
-        <div class="main-content">
-            <!-- 头部区域 -->
-            <div class="header profile-header">
-                <img src="images/tri-shooter.png" alt="个人头像" class="avatar">
-                <div class="intro">
-                    <h1>李睿钦 | 哺乳动物</h1>
-                    <p>拥有19年睡觉经验，专注于睡高质量、高效率的觉。熟练掌握单人床、双人床、上下床等现代睡觉工具，对睡觉体验设计和优化有深入理解。</p>
-                    <span class="tag"><i class="fas fa-map-marker-alt"></i> 北京大学燕园校区</span>
-                    <span class="tag"><i class="fas fa-birthday-cake"></i> 2005.11</span>
+        </aside>
+        <button class="expand-btn" aria-label="展开笔记目录" data-en="Contents ☰">目录 ☰</button>
+        <main class="main-content" id="main-content">
+            <section id="home" class="page-section profile-header">
+                <figure class="profile-photo"><img src="images/tri-shooter.png" alt="快乐堂堂的三重豌豆射手头像" class="avatar" width="180" height="180"></figure>
+                <div class="profile-copy">
+                    <h1 class="profile-name" data-en="Ruiqin Li &lt;span class=&quot;name-secondary&quot;&gt;李睿钦&lt;/span&gt;">李睿钦</h1>
+                    <p data-en="I’m Ruiqin Li, an undergraduate in Intelligence Science and Technology at Peking University and a research intern at Galbot. My research interests lie in embodied AI and robot learning, with a focus on dexterous manipulation, world-action models, and sim-to-real transfer.">我是李睿钦，北京大学智能科学与技术专业本科生，目前在银河通用（Galbot）进行科研实习。我的研究兴趣是具身智能与机器人学习，尤其关注灵巧操作、世界动作模型，以及仿真到真机的迁移。</p>
+                    <p data-en="I’m interested in enabling robots to learn from data and interaction to perform dexterous, reliable manipulation in the real world. My work spans simulation environments and data pipelines, model training and evaluation, and real-robot deployment. I also share my course projects and notes here.">我希望让机器人从数据与交互中学习，在真实环境中完成灵活、可靠的操作。目前的实践涉及仿真场景与数据流水线构建、模型训练与评测，以及真机部署。本网站也记录了我的课程项目和笔记。</p>
+                    <p class="profile-links"><a href="mailto:lrq2005@stu.pku.edu.cn">Email</a><span>/</span><a href="https://github.com/kltt-l" target="_blank" rel="noopener noreferrer">GitHub</a><span>/</span><a href="#blog">Notes</a></p>
                 </div>
-            </div>
-            
-            <!-- 首页区域 -->
-            <section id="home" class="page-section active">
-                <div class="header">
-                    <div class="intro">
-                        <h1>欢迎来到我的个人主页</h1>
-                        <p>在这里您可以了解我的专业背景、查看我的项目作品、获取我的课程笔记，或者直接与我取得联系。</p>
-                    </div>
-                </div>
-                
-                <div class="section-title">个人简介</div>
-                <div class="intro">
-                    <p style="margin-bottom: 20px;">我是一名专注于前端开发的技术专家，拥有计算机科学学士学位。从大学时期开始接触Web开发，至今已有5年专业开发经验。</p>
-                    
-                    <p style="margin-bottom: 20px;">在职业生涯中，我曾在两家科技公司担任前端开发工程师，参与过多个大型项目的架构设计和开发工作。我特别注重代码质量和用户体验，坚持编写可维护、高性能的前端代码。</p>
+
+            </section>
+            <section id="publications" class="page-section">
+                <h2 class="section-title" data-en="Selected Publications">精选论文</h2>
+                <p class="author-legend publication-legend" data-en="* Equal contribution · † Corresponding authors">* 共同贡献 · † 通讯作者</p>
+                <div class="publication-list">
+                    <article class="publication">
+                        <a class="publication-figure" href="images/wam-ttt-overview.webp" target="_blank" rel="noopener noreferrer" aria-label="WAM-TTT overview">
+                            <img src="images/wam-ttt-overview.webp" alt="WAM-TTT: human video demonstrations update fast weights to guide robot actions" width="3000" height="1385" loading="lazy">
+                        </a>
+                        <div class="publication-details">
+                        <h3>WAM-TTT: Steering World-Action Models by Watching Human Play at Test Time</h3>
+                        <p class="publication-authors">Yusen Feng<sup>*</sup>, Bingchen Han<sup>*</sup>, Jiangran Lyu<sup>*</sup>, Kai Liu, Yixin Zheng, Yuxuan Wan, Weiheng Liu, Sun Han, <strong>Ruiqin Li</strong>, Yulong Zhang, Fangfu Liu, Xuesong Shi, Libin Liu<sup>†</sup>, Yizhou Wang<sup>†</sup>, Zhizheng Zhang<sup>†</sup>, He Wang<sup>†</sup></p>
+                        <p class="publication-meta">CoRL 2026</p>
+                        <div class="publication-links"><a class="text-link" href="https://arxiv.org/abs/2607.06988" target="_blank" rel="noopener noreferrer">arXiv</a><span aria-hidden="true"> / </span><a class="text-link" href="https://wam-ttt.github.io/" target="_blank" rel="noopener noreferrer">Project</a></div>
+                        </div>
+                    </article>
                 </div>
             </section>
-            
-            <!-- 关于我区域 -->
-            <section id="about" class="page-section">
-                <h2 class="section-title">关于我</h2>
-                
-                <div style="display: flex; gap: 40px;">
-                    <div style="flex: 1;">
-                        <h3 style="font-size: 1.3rem; margin: 25px 0 15px; color: #3182ce;">基本信息</h3>
-                        <div style="margin-bottom: 20px; padding-left: 20px; border-left: 3px solid #e2e8f0;">
-                            <p style="color: #718096; margin-bottom: 10px;"><i class="fas fa-birthday-cake" style="width: 20px; color: #3182ce;"></i> 出生年月：2005.11</p>
-                            <p style="color: #718096; margin-bottom: 10px;"><i class="fas fa-map-marker-alt" style="width: 20px; color: #3182ce;"></i> 地址：北京大学燕园校区</p>
-                            <p style="color: #718096;"><i class="fas fa-envelope" style="width: 20px; color: #3182ce;"></i> 邮箱：lrq2005@stu.pku.edu.cn</p>
-                        </div>
-                        
-                        <h3 style="font-size: 1.3rem; margin: 25px 0 15px; color: #3182ce;">教育背景</h3>
-                        <div style="padding-left: 20px; border-left: 3px solid #e2e8f0;">
-                            <h4 style="font-size: 1.1rem; margin-bottom: 5px;">北京大学 | 信息科学技术学院 (2024.09 - 至今)</h4>
-                            <p style="color: #718096; margin-bottom: 15px;">智能科学与技术 · 本科生</p>
-                            
-                            <h4 style="font-size: 1.1rem; margin-bottom: 5px;">江苏省东海高级中学 (2021.09 - 2024.06)</h4>
-                        </div>
-                    </div>
-                    
-                    <div style="flex: 1;">
-                        <h3 style="font-size: 1.3rem; margin-bottom: 25px; color: #3182ce;">专业技能</h3>
-                        
-                        <div style="margin-bottom: 30px;">
-                            <h3>语言能力</h3>
-                            <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px;">
-                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">英语 CET-6</span>
-                            </div>
-                        </div>
-                        
-                        <div style="margin-bottom: 30px;">
-                            <h3>编程语言</h3>
-                            <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px;">
-                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">Python</span>
-                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">C++</span>
-                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">Linux Shell</span>
-                            </div>
-                        </div>
-                        
-                        <div style="margin-bottom: 30px;">
-                            <h3>深度学习</h3>
-                            <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px;">
-                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">PyTorch</span>
-                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">Isaac Lab</span>
-                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">CUDA 编程基础</span>
-                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">LeRobot</span>
-                            </div>
-                        </div>
-                        
-                        <div style="margin-bottom: 30px;">
-                            <h3>开发工具</h3>
-                            <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px;">
-                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">Git</span>
-                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">VS Code</span>
-                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">Cursor</span>
-                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">CodeX</span>
-                                <span style="background: #edf2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.95rem;">Claude Code</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <section id="awards" class="page-section">
+                <h2 class="section-title" data-en="Awards &amp; Honors">奖项与荣誉</h2>
+                <ul class="awards-list">
+                    <li><time>2026.09</time><span data-en="National Scholarship, 2025–2026">2025–2026 学年度国家奖学金</span></li>
+                    <li><time>2026.09</time><span data-en="Model Merit Student, Peking University, 2025–2026">2025–2026 学年度北京大学三好学生标兵</span></li>
+                    <li><time>2026.04</time><span data-en="Provincial Second Prize, 17th Lanqiao Cup, C/C++ Programming (University Group A)">第十七届蓝桥杯 C/C++ 程序设计大学 A 组省二等奖</span></li>
+                    <li><time>2025.09</time><span data-en="China Optics Valley Scholarship, 2024–2025">2024–2025 学年度中国光谷奖学金</span></li>
+                    <li><time>2025.09</time><span data-en="Merit Student, Peking University, 2024–2025">2024–2025 学年度北京大学三好学生</span></li>
+                    <li><time>2024.12</time><span data-en="Third Prize, 16th National College Mathematics Competition (Non-Math Category A)">第十六届全国大学生数学竞赛（非数学 A 类）三等奖</span></li>
+                    <li><time>2024.09</time><span data-en="Baichuan Zhiyuan Scholarship, Beijing Baichuan Charity Foundation">北京百川公益基金会“百川志远”奖学金</span></li>
+                    <li><time>2021–2024</time><span data-en="Provincial First Prizes, National High School Olympiads (Math, Physics, Chemistry, Biology)">全国中学生奥林匹克竞赛数学、物理、化学、生物学省一等奖</span></li>
+                </ul>
             </section>
-            
-            <!-- 项目区域 -->
-            <section id="projects" class="page-section">
-                <h2 class="section-title">我的项目</h2>
-                
-                <div class="projects-grid" id="projects-grid">
-                    <p style="color: #718096; grid-column: 1 / -1;">正在从 GitHub 加载项目...</p>
-                </div>
-            </section>
-            
-            <!-- 课程笔记区域 -->
             <section id="blog" class="page-section">
-                <h2 class="section-title">课程笔记</h2>
-                
-                <div class="projects-grid" id="notes-grid">
-                    <p style="color: #718096; grid-column: 1 / -1;">正在从 GitHub 加载笔记...</p>
-                </div>
+                <h2 class="section-title" data-en="Course Projects &amp; Notes">课程项目与笔记</h2>
+                <div class="projects-grid" id="projects-grid"><p class="loading" role="status" data-en="Loading projects…">正在加载项目…</p></div>
+                <div class="projects-grid notes-grid" id="notes-grid"><p class="loading" role="status" data-en="Loading notes…">正在加载笔记…</p></div>
             </section>
-
-            <!-- 笔记阅读区域 -->
+            <section id="about" class="page-section">
+                <h2 class="section-title" data-en="Education">教育经历</h2>
+                <div class="education-row"><div><strong data-en="Peking University">北京大学</strong><p data-en="School of EECS · B.S. in Intelligence Science and Technology">信息科学技术学院 · 智能科学与技术 · 本科</p></div><time data-en="Sep. 2024 — Jun. 2028 (expected)">2024.09 — 2028.06（预计）</time></div>
+                <div class="education-row"><div><strong data-en="Jiangsu Donghai Senior High School">江苏省东海高级中学</strong></div><time data-en="Sep. 2021 — Jun. 2024">2021.09 — 2024.06</time></div>
+            </section>
             <section id="note-reader" class="page-section">
-                <div class="note-reader-header">
-                    <h2 class="section-title" id="note-reader-title" style="margin-bottom: 0;"></h2>
-                    <a href="#" id="note-github-link" class="project-link" target="_blank" rel="noopener noreferrer">
-                        在 GitHub 查看 <i class="fab fa-github"></i>
-                    </a>
-                </div>
-                <div id="note-content" class="markdown-body">
-                    <p class="note-loading">正在加载笔记...</p>
-                </div>
+                <div class="note-reader-header"><a href="#blog" data-en="← Course Projects &amp; Notes">← 课程项目与笔记</a><a href="#" id="note-github-link" target="_blank" rel="noopener noreferrer" data-en="View on GitHub ↗">在 GitHub 查看 ↗</a></div>
+                <h1 id="note-reader-title">课程笔记</h1>
+                <div id="note-content" class="markdown-body"><p class="note-loading" role="status" data-en="Loading notes…">正在加载笔记…</p></div>
             </section>
-            
-            <!-- 联系区域 -->
-            <section id="contact" class="page-section">
-                <h2 class="section-title">联系方式</h2>
-                
-                <div style="display: flex; gap: 40px;">
-                    <div style="flex: 1;">
-                        <h3 style="font-size: 1.3rem; margin-bottom: 25px; color: #3182ce;">联系信息</h3>
-                        
-                        <div style="margin-bottom: 30px;">
-                            <div style="display: flex; align-items: center; margin-bottom: 20px;">
-                                <div style="width: 50px; height: 50px; background: #edf2f7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; color: #3182ce; font-size: 1.2rem;">
-                                    <i class="fas fa-envelope"></i>
-                                </div>
-                                <div>
-                                    <h4 style="font-size: 1.1rem; margin-bottom: 5px;">电子邮箱</h4>
-                                    <p style="color: #718096;">lrq2005@stu.pku.edu.cn</p>
-                                </div>
-                            </div>
-                            
-                            <div style="display: flex; align-items: center;">
-                                <div style="width: 50px; height: 50px; background: #edf2f7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; color: #3182ce; font-size: 1.2rem;">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <div>
-                                    <h4 style="font-size: 1.1rem; margin-bottom: 5px;">地址</h4>
-                                    <p style="color: #718096;">北京大学燕园校区</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <h3 style="font-size: 1.3rem; margin-bottom: 25px; color: #3182ce;">社交媒体</h3>
-                        <div style="display: flex; gap: 15px;">
-                            <a href="#" style="display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; background: #edf2f7; border-radius: 50%; color: #3182ce; text-decoration: none; transition: background 0.2s; font-size: 1.2rem;">
-                                <i class="fab fa-weibo"></i>
-                            </a>
-                            <a href="https://github.com/kltt-l" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; background: #edf2f7; border-radius: 50%; color: #3182ce; text-decoration: none; transition: background 0.2s; font-size: 1.2rem;">
-                                <i class="fab fa-github"></i>
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <div style="flex: 1;">
-                        <h3 style="font-size: 1.3rem; margin-bottom: 25px; color: #3182ce;">发送消息</h3>
-                        <form style="margin-top: 20px;">
-                            <div style="margin-bottom: 20px;">
-                                <label for="name" style="display: block; margin-bottom: 8px; font-weight: 500; color: #4a5568;">姓名</label>
-                                <input type="text" id="name" style="width: 100%; padding: 12px 15px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 1rem; transition: border-color 0.2s;" required>
-                            </div>
-                            
-                            <div style="margin-bottom: 20px;">
-                                <label for="email" style="display: block; margin-bottom: 8px; font-weight: 500; color: #4a5568;">电子邮箱</label>
-                                <input type="email" id="email" style="width: 100%; padding: 12px 15px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 1rem; transition: border-color 0.2s;" required>
-                            </div>
-                            
-                            <div style="margin-bottom: 20px;">
-                                <label for="subject" style="display: block; margin-bottom: 8px; font-weight: 500; color: #4a5568;">主题</label>
-                                <input type="text" id="subject" style="width: 100%; padding: 12px 15px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 1rem; transition: border-color 0.2s;" required>
-                            </div>
-                            
-                            <div style="margin-bottom: 20px;">
-                                <label for="message" style="display: block; margin-bottom: 8px; font-weight: 500; color: #4a5568;">消息内容</label>
-                                <textarea id="message" style="width: 100%; min-height: 150px; padding: 12px 15px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 1rem; transition: border-color 0.2s; resize: vertical;" required></textarea>
-                            </div>
-                            
-                            <button type="submit" style="background-color: #3182ce; color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 1rem; transition: background-color 0.2s;">发送消息</button>
-                        </form>
-                    </div>
-                </div>
-            </section>
-            
-            <!-- 页脚 -->
-            <div class="footer">
-                <p id="footer-motto" style="font-style: italic; color: #95a5a6; margin-bottom: 15px;"></p>
-                <p>© 2025 快乐堂堂的个人主页 | 哺乳动物 | 专注创造卓越的睡觉体验</p>
-                <p style="margin-top: 10px;">
-                    <i class="fas fa-envelope"></i> lrq2005@stu.pku.edu.cn | 
-                    <i class="fab fa-github"></i> github.com/kltt-l
-                </p>
-            </div>
-        </div>
+            <footer class="footer"><p id="footer-motto"></p></footer>
+        </main>
     </div>
-
+    <script src="preferences.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
     <script>
         const MOTTOES = [
@@ -915,7 +123,7 @@
         function showRandomMotto() {
             const mottoEl = document.getElementById('footer-motto');
             if (!mottoEl) return;
-            mottoEl.textContent = MOTTOES[Math.floor(Math.random() * MOTTOES.length)];
+            mottoEl.textContent = window.siteLanguage === 'en' ? 'What I cannot create, I do not understand.' : MOTTOES[Math.floor(Math.random() * MOTTOES.length)];
         }
 
         // 切换侧边栏折叠状态
@@ -936,37 +144,11 @@
         const NOTE_PREFIX = /^Note/i;
         const EXCLUDED_REPOS = ['kltt-l.github.io'];
 
-        const LANGUAGE_ICONS = {
-            'JavaScript': ['fab', 'fa-js'],
-            'TypeScript': ['fab', 'fa-js'],
-            'Python': ['fab', 'fa-python'],
-            'HTML': ['fab', 'fa-html5'],
-            'CSS': ['fab', 'fa-css3'],
-            'Java': ['fab', 'fa-java'],
-            'Go': ['fas', 'fa-code'],
-            'Rust': ['fas', 'fa-code'],
-            'C++': ['fas', 'fa-code'],
-            'C': ['fas', 'fa-code'],
-            'Ruby': ['fas', 'fa-gem'],
-            'PHP': ['fab', 'fa-php'],
-            'Swift': ['fab', 'fa-swift'],
-            'Kotlin': ['fas', 'fa-code'],
-            'C#': ['fas', 'fa-code'],
-            'Shell': ['fas', 'fa-terminal'],
-            'Jupyter Notebook': ['fas', 'fa-book'],
-        };
-
-        const NOTE_GRADIENTS = [
-            ['#9b59b6', '#8e44ad'],
-            ['#e74c3c', '#c0392b'],
-            ['#f39c12', '#d35400'],
-            ['#3498db', '#2980b9'],
-            ['#2ecc71', '#27ae60'],
-        ];
-
-        const NOTE_ICONS = ['fa-book', 'fa-bolt', 'fa-lock', 'fa-graduation-cap', 'fa-pen'];
+        let displayedRepos = [];
+        const tr = (zh, en) => window.siteLanguage === 'en' ? en : zh;
 
         function renderRepoGrids(repos) {
+            displayedRepos = repos;
             const projectsGrid = document.getElementById('projects-grid');
             const notesGrid = document.getElementById('notes-grid');
             const notes = repos.filter(repo => NOTE_PREFIX.test(repo.name));
@@ -974,8 +156,8 @@
                 !NOTE_PREFIX.test(repo.name) && !EXCLUDED_REPOS.includes(repo.name)
             );
 
-            renderGrid(projectsGrid, projects, createProjectCard, '暂无项目');
-            renderGrid(notesGrid, notes, createNoteCard, '暂无笔记');
+            renderGrid(projectsGrid, projects, createProjectCard, tr('暂无项目', 'No projects yet'));
+            renderGrid(notesGrid, notes, createNoteCard, tr('暂无笔记', 'No notes yet'));
             noteReposCache = notes;
         }
 
@@ -994,15 +176,11 @@
         async function fetchAllRepos() {
             const response = await fetch('./data/repos.json');
             if (!response.ok) {
-                throw new Error('无法加载仓库列表');
+                throw new Error(tr('无法加载仓库列表', 'Unable to load repositories'));
             }
             const data = await response.json();
             const repos = Array.isArray(data) ? data : data.repos;
             return dedupeRepos(repos);
-        }
-
-        function getLanguageIcon(language) {
-            return LANGUAGE_ICONS[language] || ['fas', 'fa-code'];
         }
 
         function formatNoteTitle(name) {
@@ -1014,60 +192,63 @@
         }
 
         function createProjectCard(repo) {
-            const language = repo.language || '其他';
-            const [iconPrefix, iconName] = getLanguageIcon(repo.language);
-            const title = getProjectTitle(repo);
-            const description = repo.description || repo.name;
-
-            const card = document.createElement('div');
+            const card = document.createElement('article');
             card.className = 'project-card';
-            card.innerHTML = `
-                <div class="project-image">
-                    <i class="${iconPrefix} ${iconName}"></i>
-                </div>
-                <div class="project-content">
-                    <h3>${title}</h3>
-                    <p>${description}</p>
-                    <div class="project-meta">
-                        <div class="project-tags">
-                            <span class="project-tag">${language}</span>
-                        </div>
-                        <a href="${repo.html_url}" class="project-link" target="_blank" rel="noopener noreferrer">查看 <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                </div>
-            `;
+            if (repo.name === 'FractalOctGen') {
+                const image = document.createElement('img');
+                image.src = 'images/fractal-octree.svg';
+                image.alt = tr('分形与八叉树的几何示意图', 'Geometric illustration of a fractal octree');
+                image.className = 'project-thumbnail';
+                image.width = 170;
+                image.height = 120;
+                card.appendChild(image);
+            }
+            const content = document.createElement('div');
+            content.className = 'project-content';
+            const heading = document.createElement('h3');
+            const link = document.createElement('a');
+            link.href = repo.html_url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.textContent = getProjectTitle(repo);
+            heading.appendChild(link);
+            const summary = document.createElement('p');
+            summary.textContent = repo.name === 'FractalOctGen'
+                ? tr('几何计算前沿课程期末项目。', 'Final project for Frontiers of Geometric Computation.')
+                : (repo.description || repo.name);
+            const meta = document.createElement('p');
+            meta.className = 'project-meta';
+            meta.textContent = [repo.language, tr('个人项目', 'Personal project')].filter(Boolean).join(' · ');
+            const code = link.cloneNode(false);
+            code.className = 'text-link';
+            code.textContent = 'Code ↗';
+            content.append(heading, meta, summary, code);
+            card.appendChild(content);
             return card;
         }
 
-        function createNoteCard(repo, index) {
-            const language = repo.language || '其他';
-            const [colorFrom, colorTo] = NOTE_GRADIENTS[index % NOTE_GRADIENTS.length];
-            const icon = NOTE_ICONS[index % NOTE_ICONS.length];
-            const title = formatNoteTitle(repo.name);
-            const description = repo.description || repo.name.replace(/^Notes?-/i, '');
-
-            const card = document.createElement('div');
-            card.className = 'project-card';
-            card.innerHTML = `
-                <div class="project-image" style="background: linear-gradient(135deg, ${colorFrom}, ${colorTo});">
-                    <i class="fas ${icon}"></i>
-                </div>
-                <div class="project-content">
-                    <h3>${title}</h3>
-                    <p>${description}</p>
-                    <div class="project-meta">
-                        <div class="project-tags">
-                            <span class="project-tag">${language}</span>
-                        </div>
-                        <a href="#" class="project-link note-read-link">阅读 <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                </div>
-            `;
-            card.querySelector('.note-read-link').addEventListener('click', (e) => {
-                e.preventDefault();
-                history.pushState(null, '', `#note/${repo.name}`);
-                syncRouteFromLocation();
-            });
+        function createNoteCard(repo) {
+            const details = {
+                'Notes-Introduction-to-AI-PKU-2025Spring': [tr('人工智能引论', 'Introduction to Artificial Intelligence'), tr('北京大学 · 2025 年春季课程笔记', 'Peking University · Spring 2025 course notes')],
+                'Notes-From-MLP-to-WAM': [tr('从 MLP 到 WAM', 'From MLP to WAM'), tr('梳理深度学习知识的个人笔记', 'Personal notes on deep learning')],
+            };
+            const [title, description] = details[repo.name] || [formatNoteTitle(repo.name), repo.description || tr('课程与学习笔记', 'Course and study notes')];
+            const card = document.createElement('article');
+            card.className = 'note-card';
+            const heading = document.createElement('h3');
+            const link = document.createElement('a');
+            link.href = `#note/${encodeURIComponent(repo.name)}`;
+            link.textContent = title;
+            heading.appendChild(link);
+            const summary = document.createElement('p');
+            summary.textContent = description;
+            const source = document.createElement('a');
+            source.href = repo.html_url;
+            source.target = '_blank';
+            source.rel = 'noopener noreferrer';
+            source.className = 'text-link';
+            source.textContent = 'GitHub ↗';
+            card.append(heading, summary, source);
             return card;
         }
 
@@ -1295,7 +476,7 @@
         }
 
         async function fetchTextFromUrls(urls, signal) {
-            let lastError = new Error('网络请求失败');
+            let lastError = new Error(tr('网络请求失败', 'Network request failed'));
 
             for (const url of urls) {
                 try {
@@ -1418,14 +599,14 @@
                     `https://data.jsdelivr.com/v1/package/gh/${owner}/${repo}@${branch}/flat`
                 );
                 if (!response.ok) {
-                    throw new Error(`无法读取仓库目录 (${response.status})`);
+                    throw new Error(`${tr('无法读取仓库目录', 'Unable to list repository files')} (${response.status})`);
                 }
                 const data = await response.json();
                 return (data.files || [])
                     .map(item => item.name.replace(/^\//, ''))
                     .filter(path => /\.md$/i.test(path) && !isReadmePath(path));
             } catch (error) {
-                throw new Error(`无法读取笔记目录：${error.message || '网络错误'}`);
+                throw new Error(`${tr('无法读取笔记目录', 'Unable to load note contents')}: ${error.message || tr('网络错误', 'Network error')}`);
             }
         }
 
@@ -1434,13 +615,13 @@
                 return await fetchTextFromUrls(getNoteAssetUrls(owner, repo, branch, path), signal);
             } catch (error) {
                 if (error.name === 'AbortError') throw error;
-                throw new Error(`无法加载 ${path}：${error.message || '网络错误'}`);
+                throw new Error(`${tr('无法加载', 'Unable to load')} ${path}: ${error.message || tr('网络错误', 'Network error')}`);
             }
         }
 
         function showPageSection(sectionId) {
             document.querySelectorAll('.page-section').forEach(section => {
-                section.classList.toggle('active', section.id === sectionId);
+                section.classList.toggle('active', sectionId === 'note-reader' ? section.id === 'note-reader' : section.id !== 'note-reader');
             });
         }
 
@@ -1451,7 +632,7 @@
             titleEl.textContent = title;
             titleEl.title = title;
             document.body.classList.add('note-reading');
-            sidebar.classList.remove('collapsed');
+            sidebar.classList.toggle('collapsed', window.innerWidth <= 680);
         }
 
         function resetNoteReaderUI() {
@@ -1469,13 +650,18 @@
 
         function getSectionIdFromHash() {
             const id = location.hash.replace(/^#/, '');
-            const validSections = ['home', 'about', 'projects', 'blog', 'contact'];
+            if (id === 'projects') return 'blog';
+            const validSections = ['home', 'publications', 'awards', 'about', 'blog'];
             if (!id || id.startsWith('note/')) return 'home';
             return validSections.includes(id) ? id : 'home';
         }
 
         function showMainSection(sectionId) {
             showPageSection(sectionId);
+            requestAnimationFrame(() => {
+                if (sectionId === 'home') window.scrollTo(0, 0);
+                else document.getElementById(sectionId)?.scrollIntoView();
+            });
             document.querySelectorAll('#sidebar-nav .menu-link').forEach(link => {
                 link.classList.toggle('active', link.getAttribute('href') === `#${sectionId}`);
             });
@@ -1524,7 +710,7 @@
 
             const { owner, repo, branch } = currentNoteState;
             const contentEl = document.getElementById('note-content');
-            contentEl.innerHTML = '<p class="note-loading">正在加载笔记...</p>';
+            contentEl.innerHTML = `<p class="note-loading">${tr('正在加载笔记...', 'Loading notes…')}</p>`;
             updateTocActive(path);
             if (isNoteRoute() && isRouteSyncCurrent(syncId)) {
                 setNoteHash(currentNoteState.repoName, path);
@@ -1546,12 +732,13 @@
                 contentEl.querySelectorAll('pre code').forEach(block => {
                     hljs.highlightElement(block);
                 });
+                if (window.innerWidth <= 680) sidebar.classList.add('collapsed');
                 window.scrollTo(0, 0);
             } catch (error) {
                 if (error.name === 'AbortError' || loadSeq !== noteLoadSeq) return;
                 if (!isNoteRoute() || !isRouteSyncCurrent(syncId)) return;
                 const message = error.message === 'Failed to fetch'
-                    ? '网络连接失败，请稍后重试'
+                    ? tr('网络连接失败，请稍后重试', 'Network connection failed. Please try again later.')
                     : error.message;
                 contentEl.innerHTML = `<p style="color: #e74c3c;">${message}</p>`;
             }
@@ -1571,9 +758,9 @@
 
             enterNoteSidebar(title);
             showPageSection('note-reader');
-            document.getElementById('note-reader-title').textContent = '加载中...';
+            document.getElementById('note-reader-title').textContent = tr('加载中...', 'Loading…');
             document.getElementById('note-github-link').href = repo.html_url;
-            document.getElementById('note-content').innerHTML = '<p class="note-loading">正在加载笔记目录...</p>';
+            document.getElementById('note-content').innerHTML = `<p class="note-loading">${tr('正在加载笔记目录...', 'Loading contents…')}</p>`;
 
             document.querySelectorAll('.menu-link').forEach(link => link.classList.remove('active'));
             document.querySelector('.menu-link[href="#blog"]').classList.add('active');
@@ -1584,7 +771,7 @@
                 if (!isNoteRoute() || !isRouteSyncCurrent(syncId)) return;
 
                 if (mdFiles.length === 0) {
-                    throw new Error('该仓库中没有找到 Markdown 笔记');
+                    throw new Error(tr('该仓库中没有找到 Markdown 笔记', 'No Markdown notes found in this repository'));
                 }
 
                 const tocList = document.getElementById('note-toc-list');
@@ -1601,7 +788,7 @@
             } catch (error) {
                 if (!isNoteRoute() || !isRouteSyncCurrent(syncId)) return;
                 const message = error.message === 'Failed to fetch'
-                    ? '网络连接失败，无法加载笔记目录'
+                    ? tr('网络连接失败，无法加载笔记目录', 'Unable to load the note contents. Please check your connection.')
                     : error.message;
                 document.getElementById('note-content').innerHTML = `<p style="color: #e74c3c;">${message}</p>`;
             }
@@ -1667,7 +854,7 @@
                 const repos = await fetchAllRepos();
                 renderRepoGrids(repos);
             } catch (error) {
-                const errorHtml = `<p style="color: #e74c3c; grid-column: 1 / -1;">加载失败：${error.message}</p>`;
+                const errorHtml = `<p style="color: #e74c3c; grid-column: 1 / -1;">${tr('加载失败', 'Loading failed')}: ${error.message}</p>`;
                 projectsGrid.innerHTML = errorHtml;
                 notesGrid.innerHTML = errorHtml;
             }
@@ -1675,8 +862,13 @@
 
         // 导航功能
         document.addEventListener('DOMContentLoaded', function() {
+            window.addEventListener('site-language-change', () => {
+                if (displayedRepos.length) renderRepoGrids(displayedRepos);
+                showRandomMotto();
+            });
             showRandomMotto();
-            loadGitHubRepos().then(() => syncRouteFromLocation());
+            syncRouteFromLocation();
+            loadGitHubRepos();
             window.addEventListener('hashchange', () => syncRouteFromLocation());
             window.addEventListener('popstate', () => syncRouteFromLocation());
 
@@ -1697,9 +889,6 @@
                     history.pushState(null, '', `#${targetId}`);
                     syncRouteFromLocation();
 
-                    if (window.innerWidth <= 992) {
-                        sidebar.classList.add('collapsed');
-                    }
                 });
             });
         });
