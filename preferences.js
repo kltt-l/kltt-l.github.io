@@ -49,11 +49,5 @@
         savePreference('homepage-theme', root.dataset.theme);
         updateThemeButton();
     });
-    matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-        if (!readPreference('homepage-theme')) {
-            root.dataset.theme = event.matches ? 'dark' : 'light';
-            updateThemeButton();
-        }
-    });
     setLanguage(readPreference('homepage-language') === 'zh' ? 'zh' : 'en');
 })();
