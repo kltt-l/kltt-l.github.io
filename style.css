@@ -195,3 +195,8 @@ time { white-space:nowrap; font-size:15px; color:var(--muted); }
  .profile-name { display:flex; align-items:center; align-content:center; flex-wrap:wrap; column-gap:10px; min-height:80px; }
  .profile-name .name-secondary { margin-left:0; }
 }
+
+.profile-links { gap:18px; }
+.profile-links a { display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; color:var(--muted); }
+.profile-links a:hover { color:var(--link); }
+.profile-links svg { width:24px; height:24px; }
