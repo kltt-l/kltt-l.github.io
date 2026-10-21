@@ -55,5 +55,5 @@
             updateThemeButton();
         }
     });
-    setLanguage(readPreference('homepage-language') === 'en' ? 'en' : 'zh');
+    setLanguage(readPreference('homepage-language') === 'zh' ? 'zh' : 'en');
 })();
